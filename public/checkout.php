@@ -16,6 +16,14 @@ if (empty($cart)) {
 // 2. Khởi tạo dữ liệu khách hàng và xác định trạng thái đăng nhập
 $isLoggedIn = isset($_SESSION['customer_id']);
 
+// Đặt hàng yêu cầu đã đăng nhập
+if (!$isLoggedIn) {
+    $_SESSION['after_login'] = '/checkout.php';
+    flash_set('info', 'Vui lòng đăng nhập để đặt hàng.');
+    header('Location: /login.php');
+    exit;
+}
+
 $customerID = null;
 $customerName = '';
 $email = '';
@@ -381,6 +389,9 @@ require_once '/var/www/src/includes/frontend/navbar.php';
             <div class="card shadow-sm">
                 <div class="card-body">
                     <h2 class="h5 mb-3">Thông tin khách hàng</h2>
+
+<form method="post" action="/checkout.php">
+<?= csrf_field() ?>
 
                 <?php if ($isLoggedIn): ?>
 

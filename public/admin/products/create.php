@@ -1,4 +1,7 @@
 <?php
+require_once '/var/www/src/config/auth.php';
+require_admin();
+
 $pageTitle = 'Thêm sản phẩm mới';
 
 require_once '/var/www/src/config/database.php';
@@ -158,6 +161,7 @@ require_once '/var/www/src/includes/admin/navbar.php';
                     <?php endif; ?>
 
                     <form method="post" enctype="multipart/form-data">
+<?= csrf_field() ?>
 
                         <div class="row mb-3">
                             <div class="col-md-6">

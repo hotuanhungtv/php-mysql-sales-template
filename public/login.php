@@ -41,7 +41,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 CustomerID,
                 CustomerName,
                 Email,
-                PasswordHash
+                PasswordHash,
+                IsActive
             FROM customers
             WHERE Email = ?
         ";
@@ -65,7 +66,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $result->free();
         $stmt->close();
 
-        if ($customer
+        if ($customer && !(int) $customer['IsActive']) {
+
+            $errorMessage =
+                'Tài khoản đã bị khóa. Vui lòng liên hệ cửa hàng.';
+
+        } elseif ($customer
             && !empty($customer['PasswordHash'])
             && password_verify(
                 $password,
@@ -80,7 +86,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $_SESSION['customer_name'] =
                 $customer['CustomerName'];
 
-            header('Location: /');
+            $next = $_SESSION['after_login'] ?? '/';
+            unset($_SESSION['after_login']);
+
+            header('Location: ' . $next);
             exit;
 
         } else {
@@ -124,6 +133,7 @@ require_once '/var/www/src/includes/frontend/navbar.php';
             <?php endif; ?>
 
             <form method="post">
+<?= csrf_field() ?>
 
                 <div class="mb-3">
 

@@ -186,6 +186,7 @@ require_once '/var/www/src/includes/frontend/navbar.php';
     </div>
 
         <form method="post" action="/cart.php">
+<?= csrf_field() ?>
 
             <div class="table-responsive">
 

@@ -1,4 +1,7 @@
 <?php
+require_once '/var/www/src/config/auth.php';
+require_admin();
+
 
 $pageTitle = 'Quản lý sản phẩm';
 
@@ -120,6 +123,7 @@ require_once '/var/www/src/includes/admin/navbar.php';
                                   method="post" 
                                   class="d-inline"
                                   onsubmit="return confirm('Bạn có chắc muốn xóa sản phẩm này?');">
+<?= csrf_field() ?>
                                 <input type="hidden" name="id" value="<?= $product['ProductID'] ?>">
                                 <button type="submit" class="btn btn-sm btn-danger">
                                     Xóa

@@ -149,6 +149,7 @@ require_once '/var/www/src/includes/frontend/navbar.php';
             <?php endif; ?>
 
             <form method="post">
+<?= csrf_field() ?>
 
                 <div class="mb-3">
                     <label

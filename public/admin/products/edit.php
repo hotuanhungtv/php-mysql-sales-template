@@ -1,4 +1,7 @@
 <?php
+require_once '/var/www/src/config/auth.php';
+require_admin();
+
 
 $pageTitle = 'Sửa sản phẩm';
 
@@ -141,6 +144,7 @@ require_once '/var/www/src/includes/admin/navbar.php';
             <?php endif; ?>
 
             <form method="post" class="card card-body shadow-sm">
+<?= csrf_field() ?>
                 <div class="mb-3">
                     <label for="product_code" class="form-label">Mã sản phẩm (*)</label>
                     <input type="text" class="form-control" id="product_code" name="product_code" 

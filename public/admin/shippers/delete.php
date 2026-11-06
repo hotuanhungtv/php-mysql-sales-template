@@ -1,4 +1,7 @@
 <?php
+require_once '/var/www/src/config/auth.php';
+require_admin();
+
 require_once __DIR__ . '/../../../src/config/database.php';
 
 // Chỉ xử lý yêu cầu POST

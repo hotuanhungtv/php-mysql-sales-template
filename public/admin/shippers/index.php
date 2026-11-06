@@ -1,4 +1,7 @@
 <?php
+require_once '/var/www/src/config/auth.php';
+require_admin();
+
 require_once __DIR__ . '/../../../src/config/database.php';
 
 // Kiểm tra kết nối MySQLi
@@ -140,6 +143,7 @@ $noticeType = in_array($msg, ['not_found', 'invalid_id', 'delete_error'], true)
                                                     method="POST"
                                                     onsubmit="return confirm('Bạn có chắc chắn muốn xóa đơn vị vận chuyển này?');"
                                                 >
+<?= csrf_field() ?>
                                                     <input
                                                         type="hidden"
                                                         name="id"

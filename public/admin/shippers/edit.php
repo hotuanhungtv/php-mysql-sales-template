@@ -1,4 +1,7 @@
 <?php
+require_once '/var/www/src/config/auth.php';
+require_admin();
+
 require_once __DIR__ . '/../../../src/config/database.php';
 
 $errors = [];
@@ -119,6 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?php endif; ?>
 
             <form method="POST" action="">
+<?= csrf_field() ?>
                 <div class="mb-3">
                     <label for="ShipperName" class="form-label">
                         Tên người giao hàng

@@ -1,4 +1,7 @@
 <?php
+require_once '/var/www/src/config/auth.php';
+require_admin();
+
 
 $pageTitle = 'Quản lý danh mục';
 
@@ -75,6 +78,7 @@ require_once '/var/www/src/includes/admin/navbar.php';
                             class="d-inline"
                             onsubmit="return confirm('Bạn có chắc muốn xóa danh mục này?');"
                         >
+<?= csrf_field() ?>
                             <input
                                 type="hidden"
                                 name="id"

@@ -30,6 +30,7 @@ CREATE TABLE customers (
     Phone VARCHAR(20),
     Email VARCHAR(255) NULL,
     PasswordHash VARCHAR(255) NULL,
+    IsActive BOOLEAN NOT NULL DEFAULT TRUE,
     CONSTRAINT uq_customers_email UNIQUE (Email)
 
 ) CHARACTER SET utf8mb4
@@ -42,7 +43,12 @@ CREATE TABLE employees (
     FirstName VARCHAR(50) NOT NULL,
     BirthDate DATE,
     Photo VARCHAR(255),
-    Notes TEXT
+    Notes TEXT,
+    Email VARCHAR(255) NULL,
+    PasswordHash VARCHAR(255) NULL,
+    Role VARCHAR(20) NOT NULL DEFAULT 'staff',
+    CONSTRAINT uq_employees_email UNIQUE (Email),
+    CONSTRAINT chk_employees_role CHECK (Role IN ('admin', 'staff'))
 ) CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
 

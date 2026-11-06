@@ -1,4 +1,7 @@
 <?php
+require_once '/var/www/src/config/auth.php';
+require_admin();
+
 
 $pageTitle = 'Thêm danh mục';
 require_once '/var/www/src/config/database.php';
@@ -62,6 +65,7 @@ require_once '/var/www/src/includes/admin/navbar.php';
 
     <?php endif; ?>
     <form method="post">
+<?= csrf_field() ?>
 
         <div class="mb-3">
             <label for="categoryName" class="form-label">

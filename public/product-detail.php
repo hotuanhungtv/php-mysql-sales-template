@@ -332,6 +332,7 @@ $stmtImages->close();
             <?php if ((int) $product['StockQuantity'] > 0): ?>
 
                 <form method="post" class="mb-4">
+<?= csrf_field() ?>
 
                     <div class="row g-3 align-items-end">
 

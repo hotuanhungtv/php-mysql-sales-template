@@ -1,4 +1,7 @@
 <?php
+require_once '/var/www/src/config/auth.php';
+require_staff();
+
 
 $pageTitle = 'Chi tiết đơn hàng';
 
@@ -19,6 +22,7 @@ $sqlOrder = "
         o.OrderDate,
         o.TotalAmount,
         o.Status,
+        o.ShipperID,
         c.CustomerName,
         c.ContactName,
         c.Phone,
@@ -86,7 +90,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
          * Trạng thái phải được kiểm tra lại trong transaction.
          */
         $sqlLockOrder = "
-            SELECT Status
+            SELECT Status, ShipperID
             FROM orders
             WHERE OrderID = ?
             FOR UPDATE
@@ -191,16 +195,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST'
         /*
          * Cập nhật trạng thái đơn hàng.
          */
+        $staffID = (int) $_SESSION['staff_id'];
+
+        $shipperID = (int) ($_POST['shipper_id'] ?? 0);
+
+        if ($shipperID <= 0 && $lockedOrder['ShipperID'] !== null) {
+            $shipperID = (int) $lockedOrder['ShipperID'];
+        }
+
+        if ($newStatus === 'Shipping' && $shipperID <= 0) {
+            throw new Exception(
+                'Vui lòng chọn đơn vị vận chuyển trước khi chuyển sang Đang giao.'
+            );
+        }
+
+        $shipperParam = null;
+
+        if ($shipperID > 0) {
+            $stmtShipper = $conn->prepare(
+                'SELECT 1 FROM shippers WHERE ShipperID = ?'
+            );
+            $stmtShipper->bind_param('i', $shipperID);
+            $stmtShipper->execute();
+            $shipperOk = $stmtShipper->get_result()->fetch_assoc();
+            $stmtShipper->close();
+
+            if (!$shipperOk) {
+                throw new Exception('Đơn vị vận chuyển không tồn tại.');
+            }
+
+            $shipperParam = $shipperID;
+        }
+
         $sqlUpdate = "
             UPDATE orders
-            SET Status = ?
+            SET Status = ?, EmployeeID = ?, ShipperID = ?
             WHERE OrderID = ?
         ";
 
         $stmtUpdate = $conn->prepare($sqlUpdate);
         $stmtUpdate->bind_param(
-            'si',
+            'siii',
             $newStatus,
+            $staffID,
+            $shipperParam,
             $orderID
         );
         $stmtUpdate->execute();
@@ -268,6 +306,10 @@ $stmtDetail->execute();
 
 $detailResult = $stmtDetail->get_result();
 
+$shipperList = $conn->query(
+    'SELECT ShipperID, ShipperName FROM shippers ORDER BY ShipperName'
+)->fetch_all(MYSQLI_ASSOC);
+
 require_once '/var/www/src/includes/admin/header.php';
 require_once '/var/www/src/includes/admin/navbar.php';
 
@@ -325,7 +367,9 @@ require_once '/var/www/src/includes/admin/navbar.php';
 
                     <p>
                         <strong>Trạng thái:</strong>
-                        <?= htmlspecialchars($order['Status']) ?>
+                        <span class="badge <?= order_status_badge($order['Status']) ?>">
+                            <?= e(order_status_label($order['Status'])) ?>
+                        </span>
                     </p>
 
                     <p>
@@ -351,6 +395,7 @@ require_once '/var/www/src/includes/admin/navbar.php';
                         <hr>
 
                         <form method="post">
+<?= csrf_field() ?>
 
                             <div class="mb-3">
 
@@ -381,15 +426,34 @@ require_once '/var/www/src/includes/admin/navbar.php';
                                                 $status
                                             ) ?>"
                                         >
-                                            <?= htmlspecialchars(
-                                                $status
-                                            ) ?>
+                                            <?= e(order_status_label($status)) ?>
                                         </option>
 
                                     <?php endforeach; ?>
 
                                 </select>
 
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="shipper_id" class="form-label">
+                                    Đơn vị vận chuyển
+                                    <small class="text-muted">
+                                        (bắt buộc khi chuyển sang Đang giao)
+                                    </small>
+                                </label>
+                                <select name="shipper_id" id="shipper_id"
+                                        class="form-select">
+                                    <option value="">-- Chọn --</option>
+                                    <?php foreach ($shipperList as $sh): ?>
+                                        <option value="<?= (int) $sh['ShipperID'] ?>"
+                                            <?= (int) ($order['ShipperID'] ?? 0)
+                                                === (int) $sh['ShipperID']
+                                                ? 'selected' : '' ?>>
+                                            <?= e($sh['ShipperName']) ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
                             </div>
 
                             <button

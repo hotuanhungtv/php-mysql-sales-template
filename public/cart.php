@@ -139,253 +139,136 @@ require_once '/var/www/src/includes/frontend/header.php';
 require_once '/var/www/src/includes/frontend/navbar.php';
 
 ?>
+<main class="container py-4 py-lg-5">
 
-<main class="container py-5">
-
-    <div class="mb-4">
-
+    <div class="page-head">
         <h1>Giỏ hàng</h1>
-
-        <p class="text-muted">
-            Các sản phẩm bạn đã chọn.
-        </p>
-
+        <p class="text-muted mb-0">Các sản phẩm bạn đã chọn.</p>
     </div>
 
     <?php if (empty($cartItems)): ?>
 
-        <div class="alert alert-info">
-            Giỏ hàng của bạn đang trống.
-        </div>
-
-        <div
-            class="d-flex
-                justify-content-between
-                align-items-center
-                mt-4"
-        >
-            <a
-                href="/products.php"
-                class="btn btn-outline-secondary"
-            >
-                Tiếp tục mua hàng
+        <div class="empty-state">
+            <i class="bi bi-cart-x"></i>
+            <h3 class="mt-3">Giỏ hàng đang trống</h3>
+            <p class="text-muted">Hãy chọn vài sản phẩm yêu thích nhé!</p>
+            <a href="/products.php" class="btn btn-primary btn-lg mt-2">
+                <i class="bi bi-bag"></i> Bắt đầu mua sắm
             </a>
-
         </div>
+
     <?php else: ?>
-        <div
-            class="d-flex justify-content-end mt-3"
-        >
-            <a
-                href="/checkout.php"
-                class="btn btn-success"
-            >
-                Tiến hành đặt hàng
-    </a>
 
-    </div>
+        <div class="row g-4">
 
-        <form method="post" action="/cart.php">
-<?= csrf_field() ?>
+            <div class="col-lg-8">
+                <form method="post" action="/cart.php">
+                    <?= csrf_field() ?>
 
-            <div class="table-responsive">
+                    <div class="cart-card">
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Sản phẩm</th>
+                                        <th class="text-end">Đơn giá</th>
+                                        <th class="text-center">Số lượng</th>
+                                        <th class="text-end">Thành tiền</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php foreach ($cartItems as $item): ?>
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center gap-3">
+                                                    <div class="cart-img">
+                                                        <?php if (!empty($item['ImageFile'])): ?>
+                                                            <img src="/uploads/products/<?= htmlspecialchars($item['ImageFile']) ?>"
+                                                                 alt="<?= htmlspecialchars($item['ProductName']) ?>">
+                                                        <?php else: ?>
+                                                            <i class="bi bi-image text-muted"></i>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                    <div>
+                                                        <strong><?= htmlspecialchars($item['ProductName']) ?></strong>
+                                                        <div class="text-muted small">
+                                                            <?= htmlspecialchars($item['ProductCode']) ?>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </td>
 
-                <table class="table align-middle">
+                                            <td class="text-end text-nowrap">
+                                                <?= number_format((float) $item['Price'], 0, ',', '.') ?> đ
+                                            </td>
 
-                    <thead>
+                                            <td class="text-center">
+                                                <input type="number"
+                                                       name="quantities[<?= (int) $item['ProductID'] ?>]"
+                                                       value="<?= (int) $item['Quantity'] ?>"
+                                                       min="1"
+                                                       max="<?= (int) $item['StockQuantity'] ?>"
+                                                       class="form-control mx-auto"
+                                                       style="width: 90px;">
+                                            </td>
 
-                        <tr>
-                            <th>Sản phẩm</th>
-                            <th class="text-end">Đơn giá</th>
-                            <th class="text-center">Số lượng</th>
-                            <th class="text-end">Thành tiền</th>
-                            <th class="text-center">Thao tác</th>
-                        </tr>
+                                            <td class="text-end fw-bold text-nowrap product-price" style="font-size: 1rem;">
+                                                <?= number_format((float) $item['Subtotal'], 0, ',', '.') ?> đ
+                                            </td>
 
-                    </thead>
+                                            <td class="text-center">
+                                                <button type="submit" name="remove_product"
+                                                        value="<?= (int) $item['ProductID'] ?>"
+                                                        class="btn btn-sm btn-outline-danger"
+                                                        title="Xóa khỏi giỏ" formnovalidate>
+                                                    <i class="bi bi-trash"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
 
-                    <tbody>
+                    <div class="d-flex justify-content-between align-items-center mt-3 flex-wrap gap-2">
+                        <a href="/products.php" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-left"></i> Tiếp tục mua hàng
+                        </a>
+                        <button type="submit" name="update_cart" class="btn btn-outline-primary">
+                            <i class="bi bi-arrow-repeat"></i> Cập nhật giỏ hàng
+                        </button>
+                    </div>
 
-                        <?php foreach ($cartItems as $item): ?>
-
-                            <tr>
-
-                                <td>
-
-                                    <div
-                                        class="d-flex
-                                               align-items-center
-                                               gap-3"
-                                    >
-
-                                        <?php if (!empty($item['ImageFile'])): ?>
-
-                                            <img
-                                                src="/uploads/products/<?=
-                                                    htmlspecialchars(
-                                                        $item['ImageFile']
-                                                    )
-                                                ?>"
-                                                alt="<?=
-                                                    htmlspecialchars(
-                                                        $item['ProductName']
-                                                    )
-                                                ?>"
-                                                style="
-                                                    width: 80px;
-                                                    height: 80px;
-                                                    object-fit: contain;
-                                                "
-                                            >
-
-                                        <?php endif; ?>
-
-                                        <div>
-
-                                            <strong>
-                                                <?=
-                                                    htmlspecialchars(
-                                                        $item['ProductName']
-                                                    )
-                                                ?>
-                                            </strong>
-
-                                            <div class="text-muted small">
-                                                <?=
-                                                    htmlspecialchars(
-                                                        $item['ProductCode']
-                                                    )
-                                                ?>
-                                            </div>
-
-                                        </div>
-
-                                    </div>
-
-                                </td>
-
-                                <td class="text-end">
-
-                                    <?=
-                                        number_format(
-                                            (float) $item['Price'],
-                                            0,
-                                            ',',
-                                            '.'
-                                        )
-                                    ?> đ
-
-                                </td>
-
-                                <td class="text-center">
-
-                                    <input
-                                        type="number"
-                                        name="quantities[<?=
-                                            (int) $item['ProductID']
-                                        ?>]"
-                                        value="<?=
-                                            (int) $item['Quantity']
-                                        ?>"
-                                        min="1"
-                                        max="<?=
-                                            (int) $item['StockQuantity']
-                                        ?>"
-                                        class="form-control mx-auto"
-                                        style="width: 90px;"
-                                    >
-
-                                </td>
-
-                                <td class="text-end fw-bold">
-
-                                    <?=
-                                        number_format(
-                                            (float) $item['Subtotal'],
-                                            0,
-                                            ',',
-                                            '.'
-                                        )
-                                    ?> đ
-
-                                </td>
-
-                                <td class="text-center">
-
-                                    <button
-                                        type="submit"
-                                        name="remove_product"
-                                        value="<?=
-                                            (int) $item['ProductID']
-                                        ?>"
-                                        class="btn btn-sm btn-outline-danger"
-                                        formnovalidate
-                                    >
-                                        Xóa
-                                    </button>
-
-                                </td>
-
-                            </tr>
-
-                        <?php endforeach; ?>
-
-                    </tbody>
-
-                    <tfoot>
-
-                        <tr>
-
-                            <th
-                                colspan="3"
-                                class="text-end"
-                            >
-                                Tổng cộng
-                            </th>
-
-                            <th class="text-end fs-5">
-
-                                <?=
-                                    number_format(
-                                        $totalAmount,
-                                        0,
-                                        ',',
-                                        '.'
-                                    )
-                                ?> đ
-
-                            </th>
-
-                            <th></th>
-
-                        </tr>
-
-                    </tfoot>
-
-                </table>
-
+                </form>
             </div>
 
-            <div class="d-flex justify-content-between align-items-center mt-3">
+            <div class="col-lg-4">
+                <div class="summary-card">
+                    <h5>Tóm tắt đơn hàng</h5>
 
-                <a
-                    href="/products.php"
-                    class="btn btn-outline-secondary"
-                >
-                    <i class="bi bi-arrow-left"></i>
-                    Tiếp tục mua hàng
-                </a>
+                    <div class="summary-row">
+                        <span>Tạm tính</span>
+                        <span><?= number_format($totalAmount, 0, ',', '.') ?> đ</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Phí vận chuyển</span>
+                        <span class="text-success">Miễn phí</span>
+                    </div>
 
-                <button
-                    type="submit"
-                    name="update_cart"
-                    class="btn btn-primary"
-                >
-                    Cập nhật giỏ hàng
-                </button>
-</div>
+                    <div class="summary-total">
+                        <span>Tổng cộng</span>
+                        <span class="amount"><?= number_format($totalAmount, 0, ',', '.') ?> đ</span>
+                    </div>
 
-</form>
+                    <a href="/checkout.php" class="btn btn-success w-100 btn-lg mt-4">
+                        Tiến hành đặt hàng <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+
+        </div>
 
     <?php endif; ?>
 

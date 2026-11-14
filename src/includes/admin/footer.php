@@ -1,7 +1,5 @@
-<footer class="mt-5 p-4 bg-dark text-white text-center">
-    <p class="mb-0">
-        Hệ thống quản lý bán hàng
-    </p>
+<footer class="admin-footer">
+    &copy; <?= date('Y') ?> Sales Shop &middot; Hệ thống quản lý bán hàng
 </footer>
 
 </body>

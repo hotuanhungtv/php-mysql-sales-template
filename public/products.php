@@ -134,88 +134,70 @@ require_once '/var/www/src/includes/frontend/header.php';
 require_once '/var/www/src/includes/frontend/navbar.php';
 ?>
 
-<main class="container py-5">
-    <div class="mb-4">
-        <h1>Sản phẩm</h1>
-        <p class="text-muted">Khám phá các sản phẩm hiện có tại cửa hàng.</p>
+<main class="container py-4 py-lg-5">
+    <div class="section-title">
+        <h2>Sản phẩm</h2>
+        <span class="text-muted">
+            Tìm thấy <strong class="text-dark"><?= $totalProducts ?></strong> sản phẩm
+        </span>
     </div>
 
-    <!-- Form tìm kiếm -->
-    <form method="get" action="/products.php" class="row g-3 mb-4">
-        <div class="col-md-6 col-lg-4">
+    <form method="get" action="/products.php" class="filter-bar row g-3 mb-4">
+        <div class="col-md-6 col-lg-5">
             <label for="keyword" class="form-label">Tìm sản phẩm</label>
-            <input
-                type="text"
-                name="keyword"
-                id="keyword"
-                class="form-control"
-                value="<?= htmlspecialchars($keyword) ?>"
-                placeholder="Nhập tên hoặc mã sản phẩm"
-            >
+            <input type="text" name="keyword" id="keyword" class="form-control"
+                   value="<?= htmlspecialchars($keyword) ?>"
+                   placeholder="Nhập tên hoặc mã sản phẩm">
         </div>
 
         <div class="col-md-6 col-lg-4">
             <label for="category" class="form-label">Danh mục</label>
             <select name="category" id="category" class="form-select">
                 <option value="0">Tất cả danh mục</option>
-                <?php foreach ($categories as$category): ?>
-                    <option
-                        value="<?= (int) $category['CategoryID'] ?>"
-                        <?= $categoryID === (int)$category['CategoryID'] ? 'selected' : '' ?>
-                    >
+                <?php foreach ($categories as $category): ?>
+                    <option value="<?= (int) $category['CategoryID'] ?>"
+                        <?= $categoryID === (int) $category['CategoryID'] ? 'selected' : '' ?>>
                         <?= htmlspecialchars($category['CategoryName']) ?>
                     </option>
                 <?php endforeach; ?>
             </select>
         </div>
 
-        <div class="col-md-auto align-self-end">
-            <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+        <div class="col-lg-3 d-flex align-items-end gap-2">
+            <button type="submit" class="btn btn-primary">
+                <i class="bi bi-search"></i> Tìm kiếm
+            </button>
             <a href="/products.php" class="btn btn-outline-secondary">Xóa bộ lọc</a>
         </div>
     </form>
 
-    <p class="text-muted">
-        Tìm thấy <strong><?= $totalProducts ?></strong> sản phẩm.
-    </p>
-
     <?php if ($result->num_rows > 0): ?>
         <div class="row g-4">
-            <?php while ($product =$result->fetch_assoc()): ?>
+            <?php while ($product = $result->fetch_assoc()): ?>
                 <div class="col-md-6 col-lg-4">
-                    <div class="card h-100">
-                        <?php if (!empty($product['ImageFile'])): ?>
-                            <div class="bg-light d-flex align-items-center justify-content-center p-3" style="height: 260px;">
-                                <img
-                                    src="/uploads/products/<?= htmlspecialchars($product['ImageFile']) ?>"
-                                    alt="<?= htmlspecialchars($product['ProductName']) ?>"
-                                    style="width: 100%; height: 100%; object-fit: contain;"
-                                >
-                            </div>
-                        <?php else: ?>
-                            <div class="bg-light d-flex align-items-center justify-content-center text-muted" style="height: 260px;">
-                                Chưa có hình ảnh
-                            </div>
-                        <?php endif; ?>
+                    <div class="card product-card h-100">
+                        <span class="product-cat"><?= htmlspecialchars($product['CategoryName']) ?></span>
+
+                        <a href="/product-detail.php?id=<?= (int) $product['ProductID'] ?>" class="product-thumb">
+                            <?php if (!empty($product['ImageFile'])): ?>
+                                <img src="/uploads/products/<?= htmlspecialchars($product['ImageFile']) ?>"
+                                     alt="<?= htmlspecialchars($product['ProductName']) ?>">
+                            <?php else: ?>
+                                <i class="bi bi-image text-muted fs-1"></i>
+                            <?php endif; ?>
+                        </a>
 
                         <div class="card-body d-flex flex-column">
-                            <p class="text-muted small mb-1">
-                                <?= htmlspecialchars($product['CategoryName']) ?>
+                            <h5 class="product-title"><?= htmlspecialchars($product['ProductName']) ?></h5>
+                            <p class="text-muted small mb-2">
+                                Mã: <?= htmlspecialchars($product['ProductCode']) ?>
                             </p>
-                            <h5 class="card-title">
-                                <?= htmlspecialchars($product['ProductName']) ?>
-                            </h5>
-                            <p class="text-muted small">
-                                Mã sản phẩm: <?= htmlspecialchars($product['ProductCode']) ?>
-                            </p>
-                            <p class="fw-bold fs-5 mb-3">
+                            <div class="product-price mb-3">
                                 <?= number_format((float) $product['Price'], 0, ',', '.') ?> đ
-                            </p>
-                            <a
-                                href="/product-detail.php?id=<?= (int) $product['ProductID'] ?>"
-                                class="btn btn-outline-primary mt-auto"
-                            >
-                                Xem chi tiết
+                            </div>
+                            <a href="/product-detail.php?id=<?= (int) $product['ProductID'] ?>"
+                               class="btn btn-primary mt-auto">
+                                <i class="bi bi-eye"></i> Xem chi tiết
                             </a>
                         </div>
                     </div>

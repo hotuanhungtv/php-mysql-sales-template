@@ -99,7 +99,7 @@ $sqlImages = "
     SELECT ImageFile, IsPrimary
     FROM product_images
     WHERE ProductID = ?
-    ORDER BY IsPrimary DESC
+    ORDER BY IsPrimary DESC, SortOrder ASC, ProductImageID ASC
 ";
 
 $stmtImages = $conn->prepare($sqlImages);
@@ -121,6 +121,11 @@ while ($image = $imageResult->fetch_assoc()) {
 
 $imageResult->free();
 $stmtImages->close();
+
+$pageTitle = $product['ProductName'] ?? 'Chi tiết sản phẩm';
+
+require_once '/var/www/src/includes/frontend/header.php';
+require_once '/var/www/src/includes/frontend/navbar.php';
 ?>
 
 
@@ -132,7 +137,7 @@ $stmtImages->close();
             href="/products.php"
             class="text-decoration-none"
         >
-            &larr; Quay lại danh sách sản phẩm
+            <i class="bi bi-arrow-left"></i> Quay lại danh sách sản phẩm
         </a>
 
     </div>
@@ -142,93 +147,183 @@ $stmtImages->close();
         <div class="col-lg-6">
 
             <?php if (!empty($images)): ?>
+                <?php
+                $galleryUrls = array_map(
+                    static fn(array $im): string => '/uploads/products/' . rawurlencode($im['ImageFile']),
+                    $images
+                );
+                $galleryTotal = count($galleryUrls);
+                ?>
+                <div class="gallery" id="gallery">
 
-                <div
-                    class="bg-light d-flex
-                           align-items-center
-                           justify-content-center
-                           p-3 mb-3"
-                    style="height: 420px;"
-                >
+                    <div class="gallery-main" id="galleryMain" title="Bấm để phóng to">
+                        <img
+                            id="galleryImg"
+                            src="<?= htmlspecialchars($galleryUrls[0]) ?>"
+                            alt="<?= htmlspecialchars($product['ProductName']) ?>"
+                        >
 
-                    <img
-                        src="/uploads/products/<?=
-                            htmlspecialchars(
-                                $images[0]['ImageFile']
-                            )
-                        ?>"
-                        alt="<?=
-                            htmlspecialchars(
-                                $product['ProductName']
-                            )
-                        ?>"
-                        style="
-                            width: 100%;
-                            height: 100%;
-                            object-fit: contain;
-                        "
-                    >
+                        <?php if ($galleryTotal > 1): ?>
+                            <button type="button" class="gallery-nav prev" id="galleryPrev" aria-label="Ảnh trước">
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
+                            <button type="button" class="gallery-nav next" id="galleryNext" aria-label="Ảnh sau">
+                                <i class="bi bi-chevron-right"></i>
+                            </button>
+                        <?php endif; ?>
 
-                </div>
+                        <span class="gallery-count" id="galleryCount">1/<?= $galleryTotal ?></span>
 
-                <?php if (count($images) > 1): ?>
-
-                    <div class="row g-2">
-
-                        <?php foreach ($images as $image): ?>
-
-                            <div class="col-4">
-
-                                <div
-                                    class="border rounded
-                                           bg-light
-                                           d-flex
-                                           align-items-center
-                                           justify-content-center
-                                           p-2"
-                                    style="height: 120px;"
-                                >
-
-                                    <img
-                                        src="/uploads/products/<?=
-                                            htmlspecialchars(
-                                                $image['ImageFile']
-                                            )
-                                        ?>"
-                                        alt="<?=
-                                            htmlspecialchars(
-                                                $product['ProductName']
-                                            )
-                                        ?>"
-                                        style="
-                                            width: 100%;
-                                            height: 100%;
-                                            object-fit: contain;
-                                        "
-                                    >
-
-                                </div>
-
-                            </div>
-
-                        <?php endforeach; ?>
-
+                        <button type="button" class="gallery-zoom" id="galleryZoom" aria-label="Phóng to ảnh">
+                            <i class="bi bi-arrows-fullscreen"></i>
+                        </button>
                     </div>
 
-                <?php endif; ?>
-
-            <?php else: ?>
-
-                <div
-                    class="bg-light d-flex
-                           align-items-center
-                           justify-content-center
-                           text-muted"
-                    style="height: 420px;"
-                >
-                    Chưa có hình ảnh
+                    <?php if ($galleryTotal > 1): ?>
+                        <div class="gallery-thumbs" id="galleryThumbs">
+                            <?php foreach ($galleryUrls as $i => $url): ?>
+                                <button
+                                    type="button"
+                                    class="gallery-thumb<?= $i === 0 ? ' active' : '' ?>"
+                                    data-index="<?= $i ?>"
+                                    aria-label="Xem ảnh <?= $i + 1 ?>"
+                                >
+                                    <img src="<?= htmlspecialchars($url) ?>" alt="">
+                                </button>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
                 </div>
 
+                <div class="lightbox" id="lightbox" hidden>
+                    <div class="lb-dialog" id="lbDialog">
+                        <button type="button" class="lb-close" id="lbClose" aria-label="Đóng">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                        <?php if ($galleryTotal > 1): ?>
+                            <button type="button" class="lb-nav lb-prev" id="lbPrev" aria-label="Ảnh trước">
+                                <i class="bi bi-chevron-left"></i>
+                            </button>
+                            <button type="button" class="lb-nav lb-next" id="lbNext" aria-label="Ảnh sau">
+                                <i class="bi bi-chevron-right"></i>
+                            </button>
+                        <?php endif; ?>
+                        <img id="lbImg" src="" alt="<?= htmlspecialchars($product['ProductName']) ?>">
+                    </div>
+
+                    <?php if ($galleryTotal > 1): ?>
+                        <div class="lb-thumbs" id="lbThumbs">
+                            <?php foreach ($galleryUrls as $i => $url): ?>
+                                <button type="button" class="lb-thumb" data-index="<?= $i ?>"
+                                        aria-label="Xem ảnh <?= $i + 1 ?>">
+                                    <img src="<?= htmlspecialchars($url) ?>" alt="">
+                                </button>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                </div>
+
+                <script>
+                (function () {
+                    var urls = <?= json_encode($galleryUrls, JSON_UNESCAPED_SLASHES) ?>;
+                    var total = urls.length;
+                    var cur = 0;
+
+                    var $ = function (id) { return document.getElementById(id); };
+                    var img = $('galleryImg'), count = $('galleryCount'), box = $('galleryThumbs');
+                    var thumbs = box ? Array.prototype.slice.call(box.querySelectorAll('.gallery-thumb')) : [];
+                    var lb = $('lightbox'), lbImg = $('lbImg'), lbBox = $('lbThumbs');
+                    var lbThumbs = lbBox ? Array.prototype.slice.call(lbBox.querySelectorAll('.lb-thumb')) : [];
+
+                    function centerThumb(container, el) {
+                        if (!container || !el) { return; }
+                        container.scrollTo({
+                            left: el.offsetLeft - container.clientWidth / 2 + el.clientWidth / 2,
+                            behavior: 'smooth'
+                        });
+                    }
+
+                    function show(i) {
+                        cur = (i + total) % total;
+
+                        img.src = urls[cur];
+                        count.textContent = (cur + 1) + '/' + total;
+                        thumbs.forEach(function (t, k) { t.classList.toggle('active', k === cur); });
+                        centerThumb(box, thumbs[cur]);
+
+                        if (!lb.hidden) {
+                            lbImg.src = urls[cur];
+                            lbThumbs.forEach(function (t, k) { t.classList.toggle('active', k === cur); });
+                            centerThumb(lbBox, lbThumbs[cur]);
+                        }
+                    }
+
+                    function openLightbox() {
+                        lb.hidden = false;
+                        document.body.style.overflow = 'hidden';
+                        show(cur);
+                    }
+                    function closeLightbox() {
+                        lb.hidden = true;
+                        document.body.style.overflow = '';
+                    }
+
+                    /* Ảnh nhỏ bên ngoài: bấm để đổi ảnh lớn */
+                    thumbs.forEach(function (t) {
+                        t.addEventListener('click', function () { show(parseInt(t.dataset.index, 10)); });
+                    });
+
+                    /* Mũi tên trên ảnh lớn */
+                    if ($('galleryPrev')) {
+                        $('galleryPrev').addEventListener('click', function (e) { e.stopPropagation(); show(cur - 1); });
+                        $('galleryNext').addEventListener('click', function (e) { e.stopPropagation(); show(cur + 1); });
+                    }
+
+                    /* Bấm vào ảnh lớn -> mở cửa sổ xem chi tiết */
+                    $('galleryMain').addEventListener('click', openLightbox);
+                    $('galleryZoom').addEventListener('click', function (e) { e.stopPropagation(); openLightbox(); });
+
+                    /* Trong cửa sổ xem chi tiết */
+                    $('lbClose').addEventListener('click', closeLightbox);
+                    lb.addEventListener('click', function (e) {
+                        if (!e.target.closest('.lb-dialog') && !e.target.closest('.lb-thumbs')) { closeLightbox(); }
+                    });
+                    if ($('lbPrev')) {
+                        $('lbPrev').addEventListener('click', function () { show(cur - 1); });
+                        $('lbNext').addEventListener('click', function () { show(cur + 1); });
+                    }
+                    lbThumbs.forEach(function (t) {
+                        t.addEventListener('click', function () { show(parseInt(t.dataset.index, 10)); });
+                    });
+
+                    /* Bàn phím: mũi tên trái/phải, Esc */
+                    document.addEventListener('keydown', function (e) {
+                        var inGallery = !lb.hidden || (document.activeElement && $('gallery').contains(document.activeElement));
+                        if (!inGallery) { return; }
+                        if (e.key === 'ArrowLeft') { show(cur - 1); }
+                        else if (e.key === 'ArrowRight') { show(cur + 1); }
+                        else if (e.key === 'Escape' && !lb.hidden) { closeLightbox(); }
+                    });
+
+                    /* Vuốt ngang trên điện thoại */
+                    function swipe(el) {
+                        var x0 = null;
+                        el.addEventListener('touchstart', function (e) { x0 = e.touches[0].clientX; }, { passive: true });
+                        el.addEventListener('touchend', function (e) {
+                            if (x0 === null || total < 2) { return; }
+                            var dx = e.changedTouches[0].clientX - x0;
+                            if (Math.abs(dx) > 40) { show(dx < 0 ? cur + 1 : cur - 1); }
+                            x0 = null;
+                        }, { passive: true });
+                    }
+                    swipe($('galleryMain'));
+                    swipe($('lbDialog'));
+                })();
+                </script>
+            <?php else: ?>
+                <div class="detail-main-img text-muted">
+                    Chưa có hình ảnh
+                </div>
             <?php endif; ?>
 
         </div>
@@ -260,7 +355,7 @@ $stmtImages->close();
                 ?>
             </p>
 
-            <p class="fs-3 fw-bold">
+            <p class="fs-2 fw-bold product-price">
                 <?=
                     number_format(
                         (float) $product['Price'],
@@ -363,9 +458,9 @@ $stmtImages->close();
                             <button
                                 type="submit"
                                 name="add_to_cart"
-                                class="btn btn-primary"
+                                class="btn btn-primary btn-lg"
                             >
-                                Thêm vào giỏ hàng
+                                <i class="bi bi-cart-plus"></i> Thêm vào giỏ hàng
                             </button>
 
                         </div>

@@ -104,89 +104,64 @@ require_once '/var/www/src/includes/frontend/header.php';
 require_once '/var/www/src/includes/frontend/navbar.php';
 
 ?>
-
 <div class="container py-4">
+    <div class="auth-wrap">
+        <div class="row justify-content-center w-100 mx-0">
+            <div class="col-md-8 col-lg-5">
+                <div class="auth-card">
 
-    <div class="row justify-content-center">
+                    <div class="auth-icon"><i class="bi bi-person-fill"></i></div>
+                    <h1>Chào mừng trở lại</h1>
+                    <p class="sub">Đăng nhập để tiếp tục mua sắm</p>
 
-        <div class="col-md-7 col-lg-5">
+                    <?php if (isset($_GET['registered'])): ?>
+                        <div class="alert alert-success">
+                            <i class="bi bi-check-circle"></i>
+                            Đăng ký thành công. Bạn có thể đăng nhập.
+                        </div>
+                    <?php endif; ?>
 
-            <h1 class="h3 mb-4">
-                Đăng nhập
-            </h1>
+                    <?php if ($errorMessage !== ''): ?>
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle"></i>
+                            <?= htmlspecialchars($errorMessage) ?>
+                        </div>
+                    <?php endif; ?>
 
-            <?php if (isset($_GET['registered'])): ?>
+                    <form method="post">
+                        <?= csrf_field() ?>
 
-                <div class="alert alert-success">
-                    Đăng ký thành công.
-                    Bạn có thể đăng nhập.
-                </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <div class="input-icon">
+                                <i class="bi bi-envelope"></i>
+                                <input type="email" class="form-control" id="email" name="email"
+                                       value="<?= htmlspecialchars($email) ?>"
+                                       placeholder="ban@example.com" required>
+                            </div>
+                        </div>
 
-            <?php endif; ?>
+                        <div class="mb-4">
+                            <label for="password" class="form-label">Mật khẩu</label>
+                            <div class="input-icon">
+                                <i class="bi bi-lock"></i>
+                                <input type="password" class="form-control" id="password"
+                                       name="password" placeholder="Nhập mật khẩu" required>
+                            </div>
+                        </div>
 
-            <?php if ($errorMessage !== ''): ?>
+                        <button type="submit" class="btn btn-primary w-100 btn-lg">Đăng nhập</button>
+                    </form>
 
-                <div class="alert alert-danger">
-                    <?= htmlspecialchars($errorMessage) ?>
-                </div>
-
-            <?php endif; ?>
-
-            <form method="post">
-<?= csrf_field() ?>
-
-                <div class="mb-3">
-
-                    <label
-                        for="email"
-                        class="form-label"
-                    >
-                        Email
-                    </label>
-
-                    <input
-                        type="email"
-                        class="form-control"
-                        id="email"
-                        name="email"
-                        value="<?= htmlspecialchars($email) ?>"
-                        required
-                    >
-
-                </div>
-
-                <div class="mb-3">
-
-                    <label
-                        for="password"
-                        class="form-label"
-                    >
-                        Mật khẩu
-                    </label>
-
-                    <input
-                        type="password"
-                        class="form-control"
-                        id="password"
-                        name="password"
-                        required
-                    >
+                    <p class="text-center text-muted mt-4 mb-0">
+                        Chưa có tài khoản?
+                        <a href="/register.php" class="fw-bold text-decoration-none">Đăng ký ngay</a>
+                    </p>
 
                 </div>
-
-                <button
-                    type="submit"
-                    class="btn btn-primary"
-                >
-                    Đăng nhập
-                </button>
-
-            </form>
-
+            </div>
         </div>
-
     </div>
-
 </div>
 
 <?php

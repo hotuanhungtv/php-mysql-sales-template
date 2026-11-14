@@ -95,10 +95,12 @@ if (!$customer) {
 require_once '/var/www/src/includes/frontend/header.php';
 require_once '/var/www/src/includes/frontend/navbar.php';
 ?>
+<div class="container py-4 py-lg-5">
 
-<div class="container py-4">
-
-    <h1 class="h3 mb-4">Thông tin cá nhân</h1>
+    <div class="page-head">
+        <h1>Thông tin cá nhân</h1>
+        <p class="text-muted mb-0">Quản lý thông tin liên hệ và mật khẩu của bạn.</p>
+    </div>
 
     <?php foreach ($errors as $err): ?>
         <div class="alert alert-danger"><?= e($err) ?></div>
@@ -107,73 +109,68 @@ require_once '/var/www/src/includes/frontend/navbar.php';
     <div class="row g-4">
 
         <div class="col-md-6">
-            <div class="card">
-                <div class="card-header"><strong>Thông tin liên hệ</strong></div>
-                <div class="card-body">
-                    <form method="post">
-                        <?= csrf_field() ?>
+            <div class="panel h-100">
+                <h2 class="panel-title"><i class="bi bi-person-lines-fill"></i> Thông tin liên hệ</h2>
 
-                        <div class="mb-3">
-                            <label class="form-label">Email (không đổi được)</label>
-                            <input class="form-control" disabled
-                                   value="<?= e($customer['Email']) ?>">
-                        </div>
+                <form method="post">
+                    <?= csrf_field() ?>
 
-                        <div class="mb-3">
-                            <label class="form-label">Họ và tên</label>
-                            <input class="form-control" name="customer_name" required
-                                   value="<?= e($customer['CustomerName']) ?>">
-                        </div>
+                    <div class="mb-3">
+                        <label class="form-label">Email (không đổi được)</label>
+                        <input class="form-control" disabled value="<?= e($customer['Email']) ?>">
+                    </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Số điện thoại</label>
-                            <input class="form-control" name="phone"
-                                   value="<?= e($customer['Phone'] ?? '') ?>">
-                        </div>
+                    <div class="mb-3">
+                        <label class="form-label">Họ và tên</label>
+                        <input class="form-control" name="customer_name" required
+                               value="<?= e($customer['CustomerName']) ?>">
+                    </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Địa chỉ</label>
-                            <textarea class="form-control" name="address" rows="2"><?= e($customer['Address'] ?? '') ?></textarea>
-                        </div>
+                    <div class="mb-3">
+                        <label class="form-label">Số điện thoại</label>
+                        <input class="form-control" name="phone"
+                               value="<?= e($customer['Phone'] ?? '') ?>">
+                    </div>
 
-                        <button class="btn btn-primary" name="update_profile">
-                            Lưu thay đổi
-                        </button>
-                    </form>
-                </div>
+                    <div class="mb-4">
+                        <label class="form-label">Địa chỉ</label>
+                        <textarea class="form-control" name="address" rows="2"><?= e($customer['Address'] ?? '') ?></textarea>
+                    </div>
+
+                    <button class="btn btn-primary" name="update_profile">
+                        <i class="bi bi-check2"></i> Lưu thay đổi
+                    </button>
+                </form>
             </div>
         </div>
 
         <div class="col-md-6">
-            <div class="card">
-                <div class="card-header"><strong>Đổi mật khẩu</strong></div>
-                <div class="card-body">
-                    <form method="post">
-                        <?= csrf_field() ?>
+            <div class="panel h-100">
+                <h2 class="panel-title"><i class="bi bi-shield-lock"></i> Đổi mật khẩu</h2>
 
-                        <div class="mb-3">
-                            <label class="form-label">Mật khẩu hiện tại</label>
-                            <input type="password" class="form-control"
-                                   name="current_password" required>
-                        </div>
+                <form method="post">
+                    <?= csrf_field() ?>
 
-                        <div class="mb-3">
-                            <label class="form-label">Mật khẩu mới (≥ 8 ký tự)</label>
-                            <input type="password" class="form-control"
-                                   name="new_password" required minlength="8">
-                        </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mật khẩu hiện tại</label>
+                        <input type="password" class="form-control" name="current_password" required>
+                    </div>
 
-                        <div class="mb-3">
-                            <label class="form-label">Nhập lại mật khẩu mới</label>
-                            <input type="password" class="form-control"
-                                   name="confirm_password" required>
-                        </div>
+                    <div class="mb-3">
+                        <label class="form-label">Mật khẩu mới (≥ 8 ký tự)</label>
+                        <input type="password" class="form-control" name="new_password"
+                               required minlength="8">
+                    </div>
 
-                        <button class="btn btn-warning" name="change_password">
-                            Đổi mật khẩu
-                        </button>
-                    </form>
-                </div>
+                    <div class="mb-4">
+                        <label class="form-label">Nhập lại mật khẩu mới</label>
+                        <input type="password" class="form-control" name="confirm_password" required>
+                    </div>
+
+                    <button class="btn btn-warning" name="change_password">
+                        <i class="bi bi-key"></i> Đổi mật khẩu
+                    </button>
+                </form>
             </div>
         </div>
 

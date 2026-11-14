@@ -374,153 +374,110 @@ $errorMessage = $e->getMessage();
 require_once '/var/www/src/includes/frontend/header.php';
 require_once '/var/www/src/includes/frontend/navbar.php';
 ?>
+<div class="container py-4 py-lg-5">
 
-<div class="container py-4">
-    <h1 class="h3 mb-4">Đặt hàng</h1>
+    <div class="page-head">
+        <h1>Đặt hàng</h1>
+        <p class="text-muted mb-0">Kiểm tra thông tin và xác nhận đơn hàng của bạn.</p>
+    </div>
 
     <?php if ($errorMessage !== ''): ?>
         <div class="alert alert-danger">
+            <i class="bi bi-exclamation-triangle"></i>
             <?= htmlspecialchars($errorMessage, ENT_QUOTES, 'UTF-8') ?>
         </div>
     <?php endif; ?>
 
     <div class="row g-4">
+
         <div class="col-lg-7">
-            <div class="card shadow-sm">
-                <div class="card-body">
-                    <h2 class="h5 mb-3">Thông tin khách hàng</h2>
+            <div class="panel">
 
-<form method="post" action="/checkout.php">
-<?= csrf_field() ?>
+                <h2 class="panel-title">
+                    <i class="bi bi-person-lines-fill"></i> Thông tin khách hàng
+                </h2>
 
-                <?php if ($isLoggedIn): ?>
+                <form method="post" action="/checkout.php">
+                    <?= csrf_field() ?>
 
-    <div class="mb-3">
+                    <?php if ($isLoggedIn): ?>
 
-        <label class="form-label">
-            Họ và tên
-        </label>
-
-        <input
-            type="text"
-            class="form-control"
-            value="<?= htmlspecialchars(
-                $customerName
-            ) ?>"
-            readonly
-        >
-
-    </div>
-
-    <div class="mb-3">
-
-        <label class="form-label">
-            Email
-        </label>
-
-        <input
-            type="email"
-            class="form-control"
-            value="<?= htmlspecialchars(
-                $email
-            ) ?>"
-            readonly
-        >
-
-    </div>
-
-<?php else: ?>
-
-    <div class="mb-3">
-
-        <label
-            for="customer_name"
-            class="form-label"
-        >
-            Họ và tên
-        </label>
-
-        <input
-            type="text"
-            class="form-control"
-            id="customer_name"
-            name="customer_name"
-            value="<?= htmlspecialchars(
-                $customerName
-            ) ?>"
-            required
-        >
-
-    </div>
-
-<?php endif; ?>
-
-    <div class="mb-3">
-                    <label for="phone" class="form-label">Số điện thoại</label>
-                    <input
-                        type="text"
-                        class="form-control"
-                        id="phone"
-                        name="phone"
-                        value="<?= htmlspecialchars($phone, ENT_QUOTES, 'UTF-8') ?>"
-                        required
-                    >
-                </div>
-
-                <div class="mb-3">
-                    <label for="address" class="form-label">Địa chỉ</label>
-                    <textarea
-                        class="form-control"
-                        id="address"
-                        name="address"
-                        rows="3"
-                        required
-                    ><?= htmlspecialchars($address, ENT_QUOTES, 'UTF-8') ?></textarea>
-                </div>
-
-                <button type="submit" name="place_order" class="btn btn-success">
-                    Xác nhận đặt hàng
-                </button>
-            </form>
-        </div>
-    </div>
-</div>
-
-<div class="col-lg-5">
-    <div class="card shadow-sm">
-        <div class="card-body">
-            <h2 class="h5 mb-3">Đơn hàng của bạn</h2>
-
-            <?php foreach ($cartItems as $item): ?>
-                <div class="d-flex justify-content-between border-bottom py-2">
-                    <div>
-                        <strong>
-                            <?= htmlspecialchars($item['ProductName'], ENT_QUOTES, 'UTF-8') ?>
-                        </strong>
-                        <div class="small text-muted">
-                            <?= (int) $item['Quantity'] ?>
-                            ×
-                            <?= number_format((float) $item['Price'], 0, ',', '.') ?> đ
+                        <div class="mb-3">
+                            <label class="form-label">Họ và tên</label>
+                            <input type="text" class="form-control"
+                                   value="<?= htmlspecialchars($customerName) ?>" readonly>
                         </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Email</label>
+                            <input type="email" class="form-control"
+                                   value="<?= htmlspecialchars($email) ?>" readonly>
+                        </div>
+
+                    <?php else: ?>
+
+                        <div class="mb-3">
+                            <label for="customer_name" class="form-label">Họ và tên</label>
+                            <input type="text" class="form-control" id="customer_name"
+                                   name="customer_name"
+                                   value="<?= htmlspecialchars($customerName) ?>" required>
+                        </div>
+
+                    <?php endif; ?>
+
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Số điện thoại</label>
+                        <input type="text" class="form-control" id="phone" name="phone"
+                               value="<?= htmlspecialchars($phone, ENT_QUOTES, 'UTF-8') ?>" required>
                     </div>
 
-                    <div>
-                        <?= number_format((float) $item['Subtotal'], 0, ',', '.') ?> đ
+                    <div class="mb-4">
+                        <label for="address" class="form-label">Địa chỉ giao hàng</label>
+                        <textarea class="form-control" id="address" name="address" rows="3"
+                                  required><?= htmlspecialchars($address, ENT_QUOTES, 'UTF-8') ?></textarea>
                     </div>
-                </div>
-        <?php endforeach; ?>
 
-        <div class="d-flex justify-content-between fw-bold fs-5 pt-3">
-            <span>Tổng cộng</span>
-            <span><?= number_format((float) $total, 0, ',', '.') ?> đ</span>
-        </div>
-
-        <a href="/cart.php" class="btn btn-outline-secondary mt-3">
-            Quay lại giỏ hàng
-        </a>
-                </div>
+                    <button type="submit" name="place_order" class="btn btn-success btn-lg">
+                        <i class="bi bi-check2-circle"></i> Xác nhận đặt hàng
+                    </button>
+                </form>
             </div>
         </div>
+
+        <div class="col-lg-5">
+            <div class="panel">
+
+                <h2 class="panel-title">
+                    <i class="bi bi-bag-check"></i> Đơn hàng của bạn
+                </h2>
+
+                <?php foreach ($cartItems as $item): ?>
+                    <div class="order-line">
+                        <div>
+                            <strong><?= htmlspecialchars($item['ProductName'], ENT_QUOTES, 'UTF-8') ?></strong>
+                            <div class="small text-muted">
+                                <?= (int) $item['Quantity'] ?> ×
+                                <?= number_format((float) $item['Price'], 0, ',', '.') ?> đ
+                            </div>
+                        </div>
+                        <div class="fw-semibold text-nowrap">
+                            <?= number_format((float) $item['Subtotal'], 0, ',', '.') ?> đ
+                        </div>
+                    </div>
+                <?php endforeach; ?>
+
+                <div class="summary-total">
+                    <span>Tổng cộng</span>
+                    <span class="amount"><?= number_format((float) $total, 0, ',', '.') ?> đ</span>
+                </div>
+
+                <a href="/cart.php" class="btn btn-outline-secondary mt-4">
+                    <i class="bi bi-arrow-left"></i> Quay lại giỏ hàng
+                </a>
+
+            </div>
+        </div>
+
     </div>
 </div>
 

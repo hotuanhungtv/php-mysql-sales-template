@@ -112,35 +112,42 @@ $items = $stmt->get_result();
 require_once '/var/www/src/includes/frontend/header.php';
 require_once '/var/www/src/includes/frontend/navbar.php';
 ?>
+<div class="container py-4 py-lg-5">
 
-<div class="container py-4">
-
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="h3 mb-0">Đơn hàng #<?= (int) $order['OrderID'] ?></h1>
-        <a href="/orders.php" class="btn btn-outline-secondary">Quay lại</a>
+    <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+        <h1 class="h2 mb-0">Đơn hàng #<?= (int) $order['OrderID'] ?></h1>
+        <a href="/orders.php" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Quay lại
+        </a>
     </div>
 
-    <div class="card mb-4">
-        <div class="card-body">
-            <p class="mb-1"><strong>Ngày đặt:</strong> <?= e($order['OrderDate']) ?></p>
-            <p class="mb-1">
-                <strong>Trạng thái:</strong>
-                <span class="badge <?= order_status_badge($order['Status']) ?>">
-                    <?= e(order_status_label($order['Status'])) ?>
+    <div class="panel mb-4">
+        <ul class="info-list">
+            <li>
+                <span>Ngày đặt</span>
+                <span><?= e($order['OrderDate']) ?></span>
+            </li>
+            <li>
+                <span>Trạng thái</span>
+                <span>
+                    <span class="badge <?= order_status_badge($order['Status']) ?>">
+                        <?= e(order_status_label($order['Status'])) ?>
+                    </span>
                 </span>
-            </p>
-            <p class="mb-0">
-                <strong>Tổng tiền:</strong>
-                <span class="text-danger fw-bold"><?= money($order['TotalAmount']) ?></span>
-            </p>
-        </div>
+            </li>
+            <li>
+                <span>Tổng tiền</span>
+                <span class="product-price"><?= money($order['TotalAmount']) ?></span>
+            </li>
+        </ul>
     </div>
 
     <div class="table-responsive mb-4">
-        <table class="table table-bordered align-middle">
+        <table class="table align-middle">
             <thead class="table-light">
                 <tr>
-                    <th>Mã SP</th><th>Sản phẩm</th>
+                    <th>Mã SP</th>
+                    <th>Sản phẩm</th>
                     <th class="text-end">Đơn giá</th>
                     <th class="text-end">Số lượng</th>
                     <th class="text-end">Thành tiền</th>
@@ -151,13 +158,14 @@ require_once '/var/www/src/includes/frontend/navbar.php';
                 <tr>
                     <td><?= e($item['ProductCode']) ?></td>
                     <td>
-                        <a href="/product-detail.php?id=<?= (int) $item['ProductID'] ?>">
+                        <a class="text-decoration-none fw-semibold"
+                           href="/product-detail.php?id=<?= (int) $item['ProductID'] ?>">
                             <?= e($item['ProductName']) ?>
                         </a>
                     </td>
                     <td class="text-end"><?= money($item['UnitPrice']) ?></td>
                     <td class="text-end"><?= (int) $item['Quantity'] ?></td>
-                    <td class="text-end">
+                    <td class="text-end fw-bold">
                         <?= money($item['UnitPrice'] * $item['Quantity']) ?>
                     </td>
                 </tr>
@@ -171,7 +179,9 @@ require_once '/var/www/src/includes/frontend/navbar.php';
               onsubmit="return confirm('Bạn chắc chắn muốn hủy đơn hàng này?');">
             <?= csrf_field() ?>
             <input type="hidden" name="order_id" value="<?= (int) $order['OrderID'] ?>">
-            <button class="btn btn-danger" name="cancel_order">Hủy đơn hàng</button>
+            <button class="btn btn-danger" name="cancel_order">
+                <i class="bi bi-x-circle"></i> Hủy đơn hàng
+            </button>
         </form>
     <?php endif; ?>
 </div>

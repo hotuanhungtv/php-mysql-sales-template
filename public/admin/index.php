@@ -98,15 +98,15 @@ require_once '/var/www/src/includes/admin/header.php';
 require_once '/var/www/src/includes/admin/navbar.php';
 ?>
 
-<main class="container py-4">
+<main class="container-fluid px-4 py-4">
 
-    <h1 class="h3 mb-4">Tổng quan hệ thống</h1>
+    <div class="mb-4"><h1 class="mb-1">Tổng quan hệ thống</h1><p class="text-muted mb-0">Theo dõi nhanh tình hình cửa hàng.</p></div>
 
-    <h2 class="h5">Đơn hàng theo trạng thái</h2>
+    <h2 class="h5 mb-3">Đơn hàng theo trạng thái</h2>
     <div class="row g-3 mb-4">
         <?php foreach ($statusCounts as $status => $total): ?>
             <div class="col-6 col-md">
-                <a class="text-decoration-none"
+                <a class="status-link"
                    href="/admin/orders/?status=<?= e($status) ?>">
                     <div class="card text-center h-100">
                         <div class="card-body">
@@ -123,31 +123,35 @@ require_once '/var/www/src/includes/admin/navbar.php';
 
 <?php if (is_admin()): ?>
 
-    <h2 class="h5">Doanh thu (đơn hoàn thành)</h2>
+    <h2 class="h5 mb-3">Doanh thu (đơn hoàn thành)</h2>
     <div class="row g-3 mb-4">
-        <div class="col-md-3">
-            <div class="card h-100"><div class="card-body">
-                <div class="text-muted small">Hôm nay</div>
-                <div class="fs-4 fw-bold"><?= money($revenueToday) ?></div>
-            </div></div>
+        <div class="col-md-6 col-xl-3">
+            <div class="stat-card">
+                <div class="stat-icon orange"><i class="bi bi-sun"></i></div>
+                <div><div class="stat-label">Hôm nay</div>
+                <div class="stat-value" style="font-size:1.35rem"><?= money($revenueToday) ?></div></div>
+            </div>
         </div>
-        <div class="col-md-3">
-            <div class="card h-100"><div class="card-body">
-                <div class="text-muted small">Tháng này</div>
-                <div class="fs-4 fw-bold"><?= money($revenueMonth) ?></div>
-            </div></div>
+        <div class="col-md-6 col-xl-3">
+            <div class="stat-card">
+                <div class="stat-icon blue"><i class="bi bi-calendar-month"></i></div>
+                <div><div class="stat-label">Tháng này</div>
+                <div class="stat-value" style="font-size:1.35rem"><?= money($revenueMonth) ?></div></div>
+            </div>
         </div>
-        <div class="col-md-3">
-            <div class="card h-100"><div class="card-body">
-                <div class="text-muted small">Năm nay</div>
-                <div class="fs-4 fw-bold"><?= money($revenueYear) ?></div>
-            </div></div>
+        <div class="col-md-6 col-xl-3">
+            <div class="stat-card">
+                <div class="stat-icon green"><i class="bi bi-calendar-check"></i></div>
+                <div><div class="stat-label">Năm nay</div>
+                <div class="stat-value" style="font-size:1.35rem"><?= money($revenueYear) ?></div></div>
+            </div>
         </div>
-        <div class="col-md-3">
-            <div class="card h-100"><div class="card-body">
-                <div class="text-muted small">Khách hàng đã đăng ký</div>
-                <div class="fs-4 fw-bold"><?= $customerCount ?></div>
-            </div></div>
+        <div class="col-md-6 col-xl-3">
+            <div class="stat-card">
+                <div class="stat-icon purple"><i class="bi bi-people"></i></div>
+                <div><div class="stat-label">Khách hàng đã đăng ký</div>
+                <div class="stat-value" style="font-size:1.35rem"><?= $customerCount ?></div></div>
+            </div>
         </div>
     </div>
 

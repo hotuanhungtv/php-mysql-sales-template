@@ -8,6 +8,18 @@ require_once '/var/www/src/config/database.php';
 
 $errors = [];
 
+// Gợi ý mã sản phẩm kế tiếp (SP001, SP002... chọn số lớn nhất + 1)
+$nextCode = 'SP001';
+$codeResult = $conn->query(
+    "SELECT COALESCE(MAX(CAST(SUBSTRING(ProductCode, 3) AS UNSIGNED)), 0) + 1
+     FROM products
+     WHERE ProductCode REGEXP '^SP[0-9]+$'"
+);
+if ($codeResult) {
+    $nextCode = 'SP' . str_pad((string) (int) $codeResult->fetch_row()[0], 3, '0', STR_PAD_LEFT);
+    $codeResult->free();
+}
+
 // Lấy danh sách Danh mục và Nhà cung cấp
 $categories = $conn->query("SELECT CategoryID, CategoryName FROM categories ORDER BY CategoryName ASC");
 $suppliers  = $conn->query("SELECT SupplierID, SupplierName FROM suppliers ORDER BY SupplierName ASC");
@@ -33,12 +45,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($supplierID <= 0)     $errors[] = 'Vui lòng chọn nhà cung cấp.';
     if ($price < 0)          $errors[] = 'Giá sản phẩm không hợp lệ.';
 
-    // Validate danh sách File Upload (Phải chọn từ 1 đến 4 ảnh)
+    // Validate danh sách File Upload (Phải chọn từ 1 đến 8 ảnh)
     $uploadedCount = count($files['name'] ?? []);
     if (!$files || $uploadedCount === 0 || empty($files['name'][0])) {
         $errors[] = 'Vui lòng chọn ít nhất 1 ảnh cho sản phẩm.';
-    } elseif ($uploadedCount > 4) {
-        $errors[] = 'Bạn chỉ được chọn tối đa 4 ảnh.';
+    } elseif ($uploadedCount > 8) {
+        $errors[] = 'Bạn chỉ được chọn tối đa 8 ảnh.';
     } else {
         $allowedTypes = [
             'image/jpeg' => 'jpg',
@@ -119,7 +131,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // TẤT CẢ THÀNH CÔNG -> HOÀN TẤT TRANSACTION
             $conn->commit();
 
-            header('Location: /products/index.php?msg=created');
+            header('Location: /admin/products/index.php?msg=created');
             exit();
 
         } catch (Throwable $e) {
@@ -132,7 +144,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 }
             }
 
-            $errors[] = 'Lỗi hệ thống: ' . $e->getMessage();
+            $errors[] = ($e instanceof mysqli_sql_exception && (int) $e->getCode() === 1062)
+                ? 'Mã sản phẩm "' . $productCode . '" đã tồn tại. Vui lòng nhập mã khác (gợi ý: ' . $nextCode . ').'
+                : 'Lỗi hệ thống: ' . $e->getMessage();
         }
     }
 }
@@ -166,7 +180,7 @@ require_once '/var/www/src/includes/admin/navbar.php';
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <label for="ProductCode" class="form-label fw-bold">Mã SP <span class="text-danger">*</span></label>
-                                <input type="text" class="form-control" id="ProductCode" name="ProductCode" value="<?= htmlspecialchars($_POST['ProductCode'] ?? 'SP006') ?>" required>
+                                <input type="text" class="form-control" id="ProductCode" name="ProductCode" value="<?= htmlspecialchars($_POST['ProductCode'] ?? $nextCode) ?>" required>
                             </div>
                             <div class="col-md-6">
                                 <label for="ProductName" class="form-label fw-bold">Tên sản phẩm <span class="text-danger">*</span></label>
@@ -221,7 +235,7 @@ require_once '/var/www/src/includes/admin/navbar.php';
 
                         <div class="mb-3">
                             <label for="productImages" class="form-label fw-bold">
-                                Chọn ảnh sản phẩm (Từ 1 đến 4 ảnh) <span class="text-danger">*</span>
+                                Chọn ảnh sản phẩm (Từ 1 đến 8 ảnh) <span class="text-danger">*</span>
                             </label>
                             <input 
                                 type="file" 
@@ -232,7 +246,7 @@ require_once '/var/www/src/includes/admin/navbar.php';
                                 multiple 
                                 required
                             >
-                            <small class="text-muted">Giữ phím Ctrl / Cmd để chọn tối đa 4 ảnh. Ảnh đầu tiên sẽ làm ảnh đại diện chính.</small>
+                            <small class="text-muted">Giữ phím Ctrl / Cmd để chọn tối đa 8 ảnh. Ảnh đầu tiên sẽ làm ảnh đại diện chính.</small>
                         </div>
 
                         <div class="form-check mb-4">

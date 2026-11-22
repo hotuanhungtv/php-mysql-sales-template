@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 760" width="640" height="760" role="img" aria-label="iPhone 18 Pro Max">
+<defs>
+  <linearGradient id="frame" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#e3ecf7"/><stop offset=".25" stop-color="#8ea6c4"/>
+    <stop offset=".55" stop-color="#d4e0ef"/><stop offset=".8" stop-color="#6d86a8"/><stop offset="1" stop-color="#c3d3e6"/>
+  </linearGradient>
+  <linearGradient id="backGlass" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#2c4bb8"/><stop offset=".5" stop-color="#16287a"/><stop offset="1" stop-color="#0c1848"/>
+  </linearGradient>
+  <linearGradient id="plate" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#4a68d0"/><stop offset="1" stop-color="#1a2f8a"/>
+  </linearGradient>
+  <radialGradient id="lensRing" cx=".4" cy=".35" r=".8">
+    <stop offset="0" stop-color="#e8eef8"/><stop offset=".6" stop-color="#7d8ba3"/><stop offset="1" stop-color="#3b4560"/>
+  </radialGradient>
+  <radialGradient id="lensGlass" cx=".35" cy=".3" r=".9">
+    <stop offset="0" stop-color="#3a58c8"/><stop offset=".5" stop-color="#101a52"/><stop offset="1" stop-color="#05070f"/>
+  </radialGradient>
+  <linearGradient id="wall" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#8ec3f5"/><stop offset=".42" stop-color="#62a7ea"/>
+    <stop offset=".75" stop-color="#1f3d9a"/><stop offset="1" stop-color="#0c1848"/>
+  </linearGradient>
+  <linearGradient id="glare" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#fff" stop-opacity=".38"/><stop offset=".45" stop-color="#fff" stop-opacity=".05"/><stop offset="1" stop-color="#fff" stop-opacity="0"/>
+  </linearGradient>
+  <linearGradient id="glareBack" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/>
+  </linearGradient>
+  <clipPath id="screenClip"><rect x="11" y="11" width="248" height="538" rx="38"/></clipPath>
+  <filter id="soft" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="16"/></filter>
+</defs>
+
+<!-- ============ MẶT SAU (phía sau, nghiêng trái) ============ -->
+<g transform="translate(40 150) rotate(-9 125 260)">
+  <rect x="22" y="40" width="250" height="520" rx="46" fill="#05102e" opacity=".42" filter="url(#soft)"/>
+  <rect x="-3" y="120" width="4" height="36" rx="2" fill="#6d86a8"/><rect x="-3" y="172" width="4" height="36" rx="2" fill="#6d86a8"/>
+  <rect x="249" y="150" width="4" height="64" rx="2" fill="#6d86a8"/>
+  <rect width="250" height="520" rx="46" fill="url(#frame)"/>
+  <rect x="5" y="5" width="240" height="510" rx="41" fill="url(#backGlass)"/>
+  <rect x="5" y="5" width="240" height="510" rx="41" fill="url(#glareBack)"/>
+  <!-- cụm camera -->
+  <rect x="17" y="17" width="132" height="132" rx="32" fill="url(#plate)" stroke="#8aa4e6" stroke-opacity=".55" stroke-width="1.5"/>
+  <g>
+<circle cx="52" cy="54" r="28" fill="url(#lensRing)"/>
+<circle cx="52" cy="54" r="25" fill="#0a0c14"/>
+<circle cx="52" cy="54" r="19" fill="url(#lensGlass)"/>
+<circle cx="52" cy="54" r="12" fill="#05060b"/>
+<circle cx="45.0" cy="46.5" r="4.0" fill="#8ec3f5" opacity=".85"/>
+<circle cx="58.2" cy="61.0" r="2.0" fill="#f2ea1e" opacity=".8"/>
+</g><g>
+<circle cx="52" cy="114" r="28" fill="url(#lensRing)"/>
+<circle cx="52" cy="114" r="25" fill="#0a0c14"/>
+<circle cx="52" cy="114" r="19" fill="url(#lensGlass)"/>
+<circle cx="52" cy="114" r="12" fill="#05060b"/>
+<circle cx="45.0" cy="106.5" r="4.0" fill="#8ec3f5" opacity=".85"/>
+<circle cx="58.2" cy="121.0" r="2.0" fill="#f2ea1e" opacity=".8"/>
+</g><g>
+<circle cx="108" cy="84" r="28" fill="url(#lensRing)"/>
+<circle cx="108" cy="84" r="25" fill="#0a0c14"/>
+<circle cx="108" cy="84" r="19" fill="url(#lensGlass)"/>
+<circle cx="108" cy="84" r="12" fill="#05060b"/>
+<circle cx="101.0" cy="76.5" r="4.0" fill="#8ec3f5" opacity=".85"/>
+<circle cx="114.2" cy="91.0" r="2.0" fill="#f2ea1e" opacity=".8"/>
+</g>
+  <circle cx="110" cy="36" r="8" fill="#fff6c8"/><circle cx="110" cy="36" r="5" fill="#f2ea1e"/>
+  <circle cx="110" cy="132" r="7" fill="#0a0c14"/><circle cx="130" cy="34" r="3" fill="#0a0c14" opacity=".6"/>
+  <!-- chữ khắc nhẹ -->
+  <text x="125" y="468" text-anchor="middle" font-family="Inter,'Be Vietnam Pro',Arial,sans-serif" font-size="15" font-weight="600" letter-spacing="4" fill="#9fb5ee" opacity=".7">PRO MAX</text>
+</g>
+
+<!-- ============ MẶT TRƯỚC (phía trước, nghiêng phải) ============ -->
+<g transform="translate(300 100) rotate(7 135 280)">
+  <rect x="22" y="40" width="270" height="560" rx="48" fill="#05102e" opacity=".5" filter="url(#soft)"/>
+  <rect x="-3" y="116" width="4" height="42" rx="2" fill="#6d86a8"/><rect x="-3" y="170" width="4" height="42" rx="2" fill="#6d86a8"/>
+  <rect x="-3" y="72" width="4" height="24" rx="2" fill="#6d86a8"/><rect x="269" y="156" width="4" height="74" rx="2" fill="#6d86a8"/>
+  <rect width="270" height="560" rx="48" fill="url(#frame)"/>
+  <rect x="5" y="5" width="260" height="550" rx="43" fill="#080b14"/>
+  <g clip-path="url(#screenClip)">
+    <rect x="11" y="11" width="248" height="538" fill="url(#wall)"/>
+    <path d="M-10 330 Q90 270 190 330 T 300 300 L300 570 L-10 570 Z" fill="#62a7ea" opacity=".35"/>
+    <circle cx="205" cy="372" r="132" fill="#f2ea1e"/>
+    <circle cx="205" cy="372" r="132" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="2" transform="scale(1)"/>
+    <circle cx="40" cy="470" r="105" fill="#0c1848" opacity=".85"/>
+    <circle cx="70" cy="190" r="70" fill="#fff" opacity=".1"/>
+  </g>
+  <!-- thanh trạng thái + màn hình khóa -->
+  <rect x="87" y="24" width="96" height="27" rx="13.5" fill="#04050a"/>
+  <circle cx="168" cy="37.5" r="4.5" fill="#101830"/>
+  <text x="38" y="45" font-family="Inter,'Be Vietnam Pro',Arial,sans-serif" font-size="13" font-weight="700" fill="#fff">9:41</text>
+  <g fill="#fff"><rect x="200" y="36" width="3" height="6" rx="1"/><rect x="205" y="33" width="3" height="9" rx="1"/><rect x="210" y="30" width="3" height="12" rx="1"/>
+  <rect x="217" y="31" width="22" height="11" rx="3.4" fill="none" stroke="#fff" stroke-width="1.2" opacity=".9"/><rect x="219" y="33" width="15" height="7" rx="2"/></g>
+  <text x="135" y="98" text-anchor="middle" font-family="Inter,'Be Vietnam Pro',Arial,sans-serif" font-size="13" font-weight="600" fill="#0c1848" opacity=".9">Thứ Sáu, 14 Tháng 11</text>
+  <text x="135" y="172" text-anchor="middle" font-family="Inter,'Be Vietnam Pro',Arial,sans-serif" font-size="78" font-weight="800" fill="#0c1848">9:41</text>
+  <g>
+    <circle cx="52" cy="496" r="20" fill="#0c1848" opacity=".55"/><circle cx="218" cy="496" r="20" fill="#0c1848" opacity=".55"/>
+    <path d="M47 488 h10 l-2 7 h-6 z M50 497 h4 v9 h-4 z" fill="#fff" opacity=".95"/>
+    <rect x="208" y="490" width="20" height="14" rx="3.5" fill="none" stroke="#fff" stroke-width="1.8"/><circle cx="218" cy="497" r="3.4" fill="#fff"/>
+  </g>
+  <rect x="95" y="535" width="80" height="4.5" rx="2.25" fill="#fff" opacity=".9"/>
+  <path d="M11 11 H150 L11 300 Z" fill="url(#glare)" clip-path="url(#screenClip)"/>
+  <rect x="5" y="5" width="260" height="550" rx="43" fill="none" stroke="#fff" stroke-opacity=".18"/>
+</g>
+</svg>

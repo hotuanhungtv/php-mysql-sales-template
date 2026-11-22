@@ -32,18 +32,36 @@ require_once '/var/www/src/includes/frontend/navbar.php';
 ?>
 <div class="container pt-4 pt-lg-5">
     <section class="hero mb-5">
-        <span class="badge rounded-pill bg-light text-dark mb-3 px-3 py-2">
-            <i class="bi bi-lightning-charge-fill text-warning"></i> Ưu đãi công nghệ mỗi ngày
-        </span>
-        <h1 class="mb-3">Thiết bị điện tử chính hãng,<br>giá tốt, giao tận nơi</h1>
-        <p class="mb-4">
-            Điện thoại, máy tính và phụ kiện giá tốt, giao hàng tận nơi.
-        </p>
-        <form action="/products.php" method="get" class="hero-search d-flex flex-wrap gap-2">
-            <input type="text" name="keyword" class="form-control flex-grow-1"
-                   placeholder="Bạn muốn tìm sản phẩm nào?">
-            <button class="btn btn-light btn-lg"><i class="bi bi-search"></i> Tìm kiếm</button>
-        </form>
+        <div class="row align-items-center g-4">
+            <div class="col-lg-7 hero-content">
+                <span class="badge rounded-pill mb-3 px-3 py-2">
+                    <i class="bi bi-lightning-charge-fill" style="color:var(--sun)"></i> Ưu đãi công nghệ mỗi ngày
+                </span>
+                <h1 class="mb-3">Thiết bị điện tử <span class="hl">chính hãng</span>,<br>giá tốt, giao tận nơi</h1>
+                <p class="mb-4">
+                    Điện thoại, máy tính và phụ kiện giá tốt, giao hàng tận nơi.
+                </p>
+                <form action="/products.php" method="get" class="hero-search d-flex flex-wrap gap-2">
+                    <input type="text" name="keyword" class="form-control flex-grow-1"
+                           placeholder="Bạn muốn tìm sản phẩm nào?">
+                    <button class="btn btn-light btn-lg"><i class="bi bi-search"></i> Tìm kiếm</button>
+                </form>
+                <div class="hero-stats">
+                    <div><strong>100%</strong>Hàng chính hãng</div>
+                    <div><strong>7 ngày</strong>Đổi trả dễ dàng</div>
+                    <div><strong>24/7</strong>Hỗ trợ khách hàng</div>
+                </div>
+            </div>
+            <div class="col-lg-5 hero-visual">
+                <span class="glow"></span>
+                <span class="ring"></span>
+                <img src="/assets/img/iphone-hero.png" alt="iPhone Pro chính hãng">
+                <div class="hero-tags">
+                    <span class="hero-tag"><i class="bi bi-patch-check-fill"></i> Chính hãng VN/A</span>
+                    <span class="hero-tag"><i class="bi bi-truck"></i> Giao tận nơi</span>
+                </div>
+            </div>
+        </div>
     </section>
 </div>
 

@@ -6,7 +6,15 @@ require_once '/var/www/src/config/database.php';
 $pageTitle = 'Đặt hàng';
 
 // 1. Lấy và kiểm tra giỏ hàng
-$cart = $_SESSION['cart'] ?? [];
+/* Chế độ "Mua ngay": chỉ thanh toán sản phẩm vừa chọn, không đụng tới giỏ hàng */
+$buyNow = ($_GET['mode'] ?? '') === 'buy_now'
+    && !empty($_SESSION['buy_now'])
+    && is_array($_SESSION['buy_now']);
+
+$cart = $buyNow
+    ? $_SESSION['buy_now']
+    : ($_SESSION['cart'] ?? []);
+$checkoutUrl = $buyNow ? '/checkout.php?mode=buy_now' : '/checkout.php';
 
 if (empty($cart)) {
     header('Location: /cart.php');
@@ -18,7 +26,7 @@ $isLoggedIn = isset($_SESSION['customer_id']);
 
 // Đặt hàng yêu cầu đã đăng nhập
 if (!$isLoggedIn) {
-    $_SESSION['after_login'] = '/checkout.php';
+    $_SESSION['after_login'] = $checkoutUrl;
     flash_set('info', 'Vui lòng đăng nhập để đặt hàng.');
     header('Location: /login.php');
     exit;
@@ -357,7 +365,11 @@ $stmtStock->close();
 $conn->commit();
 $transactionStarted = false;
 
-$_SESSION['cart'] = [];
+if ($buyNow) {
+    unset($_SESSION['buy_now']);
+} else {
+    $_SESSION['cart'] = [];
+}
 
     header('Location: /order-success.php?id=' . $orderID);
     exit;
@@ -377,8 +389,12 @@ require_once '/var/www/src/includes/frontend/navbar.php';
 <div class="container py-4 py-lg-5">
 
     <div class="page-head">
-        <h1>Đặt hàng</h1>
-        <p class="text-muted mb-0">Kiểm tra thông tin và xác nhận đơn hàng của bạn.</p>
+        <h1><?= $buyNow ? '<i class="bi bi-lightning-charge-fill buy-now-icon"></i> Mua ngay' : 'Đặt hàng' ?></h1>
+        <p class="text-muted mb-0">
+            <?= $buyNow
+                ? 'Nhập thông tin giao hàng và xác nhận để hoàn tất đơn mua ngay.'
+                : 'Kiểm tra thông tin và xác nhận đơn hàng của bạn.' ?>
+        </p>
     </div>
 
     <?php if ($errorMessage !== ''): ?>
@@ -397,7 +413,7 @@ require_once '/var/www/src/includes/frontend/navbar.php';
                     <i class="bi bi-person-lines-fill"></i> Thông tin khách hàng
                 </h2>
 
-                <form method="post" action="/checkout.php">
+                <form method="post" action="<?= e($checkoutUrl) ?>">
                     <?= csrf_field() ?>
 
                     <?php if ($isLoggedIn): ?>
@@ -437,6 +453,14 @@ require_once '/var/www/src/includes/frontend/navbar.php';
                                   required><?= htmlspecialchars($address, ENT_QUOTES, 'UTF-8') ?></textarea>
                     </div>
 
+                    <div class="pay-note mb-4">
+                        <i class="bi bi-cash-coin"></i>
+                        <div>
+                            <strong>Thanh toán khi nhận hàng (COD)</strong>
+                            <div class="small text-muted">Kiểm tra hàng rồi thanh toán cho nhân viên giao hàng.</div>
+                        </div>
+                    </div>
+
                     <button type="submit" name="place_order" class="btn btn-success btn-lg">
                         <i class="bi bi-check2-circle"></i> Xác nhận đặt hàng
                     </button>
@@ -471,9 +495,16 @@ require_once '/var/www/src/includes/frontend/navbar.php';
                     <span class="amount"><?= number_format((float) $total, 0, ',', '.') ?> đ</span>
                 </div>
 
-                <a href="/cart.php" class="btn btn-outline-secondary mt-4">
-                    <i class="bi bi-arrow-left"></i> Quay lại giỏ hàng
-                </a>
+                <?php if ($buyNow): ?>
+                    <a href="/product-detail.php?id=<?= (int) $cartItems[0]['ProductID'] ?>"
+                       class="btn btn-outline-secondary mt-4">
+                        <i class="bi bi-arrow-left"></i> Quay lại sản phẩm
+                    </a>
+                <?php else: ?>
+                    <a href="/cart.php" class="btn btn-outline-secondary mt-4">
+                        <i class="bi bi-arrow-left"></i> Quay lại giỏ hàng
+                    </a>
+                <?php endif; ?>
 
             </div>
         </div>

@@ -53,11 +53,15 @@ h1, h2, h3, h4, h5 { font-weight: 700; letter-spacing: -.01em; }
     border: 0; color: #fff;
     box-shadow: 0 8px 18px rgba(12, 24, 72, .28);
 }
-.btn-primary:hover, .btn-success:hover, .btn-primary:focus, .btn-success:focus {
-    background: var(--sun); color: var(--navy); transform: translateY(-2px);
+.btn-primary:hover, .btn-success:hover, .btn-primary:focus-visible, .btn-success:focus-visible {
+    background-image: none !important;
+    background-color: var(--sun) !important;
+    color: var(--navy) !important;
+    transform: translateY(-2px);
     box-shadow: 0 10px 24px rgba(242, 234, 30, .55);
 }
-.btn-primary:active, .btn-success:active { background: var(--sun-dark) !important; color: var(--navy) !important; }
+.btn-primary, .btn-success { transition: transform .2s, box-shadow .2s, background-color .2s, color .2s; }
+.btn-primary:active, .btn-success:active { background-image: none !important; background-color: var(--sun-dark) !important; color: var(--navy) !important; }
 .btn-outline-primary { color: var(--navy); border: 2px solid var(--sky); background: rgba(98, 167, 234, .08); }
 .btn-outline-primary:hover { background: var(--sky); border-color: var(--sky); color: var(--navy); }
 .btn-outline-secondary { border: 2px solid var(--line); color: var(--navy); background: #fff; }
@@ -515,3 +519,97 @@ h1, h2, h3, h4, h5 { font-weight: 700; letter-spacing: -.01em; }
     .lb-prev { left: 6px; } .lb-next { right: 6px; }
     .lb-thumb { width: 64px; height: 64px; }
 }
+
+
+/* =====================================================
+   NÚT MUA NGAY
+   ===================================================== */
+.btn-buy {
+    background: var(--sun); color: var(--navy); font-weight: 800; border: 2px solid var(--navy);
+    box-shadow: 0 8px 18px rgba(242, 234, 30, .45);
+    transition: transform .2s, box-shadow .2s, background-color .2s, color .2s;
+}
+.btn-buy:hover, .btn-buy:focus-visible {
+    background: var(--navy); color: var(--sun); border-color: var(--navy);
+    transform: translateY(-2px); box-shadow: 0 10px 24px rgba(12, 24, 72, .35);
+}
+.buy-now-icon { color: var(--navy); background: var(--sun); border-radius: 12px; padding: .1em .25em; }
+.pay-note {
+    display: flex; gap: .8rem; align-items: center; padding: .9rem 1rem;
+    background: var(--sky-soft); border: 2px solid var(--sky); border-radius: 14px;
+}
+.pay-note > i { font-size: 1.6rem; color: var(--navy); }
+
+/* =====================================================
+   LỌC KHOẢNG GIÁ
+   ===================================================== */
+.price-filter { background: var(--surface); border-radius: 14px; padding: .9rem 1.1rem 1rem; box-shadow: var(--shadow); }
+.price-filter .form-label { font-weight: 700; color: var(--navy); }
+.price-inputs { display: flex; align-items: center; gap: .6rem; margin-bottom: .9rem; }
+.price-inputs .form-control { text-align: center; font-weight: 600; color: var(--navy); }
+.price-dash { flex: none; width: 18px; height: 2px; background: var(--sky); border-radius: 2px; }
+.price-slider { position: relative; height: 24px; }
+.price-track {
+    position: absolute; left: 9px; right: 9px; top: 10px; height: 4px;
+    background: var(--line); border-radius: 4px;
+}
+.price-range { position: absolute; top: 0; bottom: 0; background: var(--navy); border-radius: 4px; }
+.price-slider input[type=range] {
+    position: absolute; left: 0; top: 0; width: 100%; height: 24px; margin: 0; padding: 0;
+    background: none; pointer-events: none; -webkit-appearance: none; appearance: none;
+}
+.price-slider input[type=range]::-webkit-slider-runnable-track { background: transparent; height: 24px; }
+.price-slider input[type=range]::-moz-range-track { background: transparent; }
+.price-slider input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none; pointer-events: auto; cursor: grab;
+    width: 18px; height: 18px; margin-top: 3px; border-radius: 50%;
+    background: #fff; border: 3px solid var(--navy); box-shadow: 0 2px 6px rgba(12, 24, 72, .3);
+}
+.price-slider input[type=range]::-moz-range-thumb {
+    pointer-events: auto; cursor: grab; box-sizing: border-box;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: #fff; border: 3px solid var(--navy); box-shadow: 0 2px 6px rgba(12, 24, 72, .3);
+}
+.price-slider input[type=range]:active::-webkit-slider-thumb { background: var(--sun); cursor: grabbing; }
+.price-slider input[type=range]:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 4px rgba(242, 234, 30, .8); }
+
+/* =====================================================
+   ĐÁNH GIÁ & NHẬN XÉT
+   ===================================================== */
+.stars { display: inline-flex; gap: 2px; font-size: .95rem; vertical-align: middle; }
+.stars .bi-star-fill { color: var(--sun); filter: drop-shadow(0 0 .6px var(--navy)) drop-shadow(0 0 .6px var(--navy)); }
+.stars .bi-star { color: #9db9d8; }
+.stars-lg { font-size: 1.5rem; }
+
+.review-section { margin-top: 4rem; scroll-margin-top: 90px; }
+.review-summary { text-align: center; }
+.review-avg { font-size: 3.4rem; font-weight: 800; line-height: 1; color: var(--navy); }
+.review-bar { display: grid; grid-template-columns: 38px 1fr 28px; gap: .5rem; align-items: center; font-size: .85rem; margin-top: .35rem; }
+.review-bar .bi-star-fill { color: var(--navy); }
+.review-bar-track { height: 8px; background: var(--sky-soft); border-radius: 8px; overflow: hidden; }
+.review-bar-track > div { height: 100%; background: linear-gradient(90deg, var(--sky), var(--navy)); border-radius: 8px; }
+
+.star-input { display: inline-flex; flex-direction: row-reverse; justify-content: flex-end; gap: .15rem; }
+.star-input input { position: absolute; opacity: 0; pointer-events: none; }
+.star-input label { font-size: 2rem; line-height: 1; cursor: pointer; color: #b9cde6; transition: transform .15s, color .15s; }
+.star-input label:hover, .star-input label:hover ~ label,
+.star-input input:checked ~ label { color: var(--sun); text-shadow: 0 0 1px var(--navy), 0 0 1px var(--navy), 0 0 2px var(--navy); }
+.star-input label:hover { transform: scale(1.15); }
+.star-input input:focus-visible + label { outline: 3px solid var(--navy); outline-offset: 2px; border-radius: 6px; }
+
+.review-item {
+    display: flex; gap: 1rem; background: var(--surface); border-radius: var(--radius);
+    padding: 1.1rem 1.2rem; margin-bottom: 1rem; box-shadow: var(--shadow);
+    border-left: 5px solid var(--sky);
+}
+.review-avatar {
+    flex: none; width: 46px; height: 46px; border-radius: 50%;
+    background: var(--navy); color: var(--sun); font-weight: 800; font-size: 1.15rem;
+    display: flex; align-items: center; justify-content: center;
+}
+.review-reply {
+    margin-top: .8rem; padding: .7rem 1rem; background: var(--sky-soft);
+    border-left: 4px solid var(--sun); border-radius: 10px;
+}
+
+.filter-bar .price-filter { background: none; box-shadow: none; padding: 0; }

@@ -143,4 +143,31 @@ CREATE TABLE orderdetail (
         FOREIGN KEY (ProductID) REFERENCES products(ProductID)
 ) CHARACTER SET utf8mb4
   COLLATE utf8mb4_unicode_ci;
-  
+
+CREATE TABLE reviews (
+    ReviewID INT AUTO_INCREMENT PRIMARY KEY,
+    ProductID INT NOT NULL,
+    CustomerID INT NOT NULL,
+    OrderID INT NULL,
+    Rating TINYINT NOT NULL,
+    Comment TEXT NOT NULL,
+    IsVisible BOOLEAN NOT NULL DEFAULT TRUE,
+    IsRead BOOLEAN NOT NULL DEFAULT FALSE,
+    AdminReply TEXT NULL,
+    RepliedAt DATETIME NULL,
+    CreatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT uq_reviews_product_customer UNIQUE (ProductID, CustomerID),
+    CONSTRAINT chk_reviews_rating CHECK (Rating BETWEEN 1 AND 5),
+    CONSTRAINT fk_reviews_product
+        FOREIGN KEY (ProductID) REFERENCES products(ProductID)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_reviews_customer
+        FOREIGN KEY (CustomerID) REFERENCES customers(CustomerID)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_reviews_order
+        FOREIGN KEY (OrderID) REFERENCES orders(OrderID)
+        ON DELETE SET NULL
+) CHARACTER SET utf8mb4
+  COLLATE utf8mb4_unicode_ci;

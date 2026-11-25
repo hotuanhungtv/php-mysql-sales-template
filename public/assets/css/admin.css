@@ -131,3 +131,14 @@ body.admin-login { min-height: 100vh; display: flex; align-items: center;
     border: 2px dashed rgba(var(--brand-rgb), .5);
 }
 .new-preview img { width: 100%; height: 100%; object-fit: contain; }
+
+/* ===== Đánh giá (quản trị) ===== */
+.nav-count {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 20px; height: 20px; padding: 0 6px; margin-left: 4px;
+    border-radius: 999px; background: var(--sun); color: var(--navy); font-size: .72rem; font-weight: 800;
+}
+.admin-nav .nav-link.active .nav-count { background: var(--navy); color: var(--sun); }
+.review-admin-card { border-left: 5px solid var(--sky); }
+.review-admin-card.is-hidden { opacity: .65; border-left-color: #9aa4b8; }
+.stat-value { font-size: 1.5rem; }

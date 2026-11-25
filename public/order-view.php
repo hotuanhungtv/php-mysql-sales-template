@@ -2,6 +2,8 @@
 
 require_once '/var/www/src/config/session.php';
 require_once '/var/www/src/config/database.php';
+require_once '/var/www/src/config/reviews.php';
+reviews_ensure_table($conn);
 
 $pageTitle = 'Chi tiết đơn hàng';
 
@@ -109,6 +111,20 @@ $stmt->bind_param('i', $orderID);
 $stmt->execute();
 $items = $stmt->get_result();
 
+/* Sản phẩm trong đơn này khách đã đánh giá chưa? */
+$canReview = REVIEW_REQUIRE_COMPLETED
+    ? $order['Status'] === 'Completed'
+    : $order['Status'] !== 'Cancelled';
+
+$reviewedProducts = [];
+$stmtRv = $conn->prepare('SELECT ProductID FROM reviews WHERE CustomerID = ?');
+$stmtRv->bind_param('i', $customerID);
+$stmtRv->execute();
+foreach ($stmtRv->get_result()->fetch_all(MYSQLI_ASSOC) as $rv) {
+    $reviewedProducts[(int) $rv['ProductID']] = true;
+}
+$stmtRv->close();
+
 require_once '/var/www/src/includes/frontend/header.php';
 require_once '/var/www/src/includes/frontend/navbar.php';
 ?>
@@ -151,6 +167,7 @@ require_once '/var/www/src/includes/frontend/navbar.php';
                     <th class="text-end">Đơn giá</th>
                     <th class="text-end">Số lượng</th>
                     <th class="text-end">Thành tiền</th>
+                    <th class="text-end">Đánh giá</th>
                 </tr>
             </thead>
             <tbody>
@@ -167,6 +184,17 @@ require_once '/var/www/src/includes/frontend/navbar.php';
                     <td class="text-end"><?= (int) $item['Quantity'] ?></td>
                     <td class="text-end fw-bold">
                         <?= money($item['UnitPrice'] * $item['Quantity']) ?>
+                    </td>
+                    <td class="text-end text-nowrap">
+                        <?php if ($canReview): ?>
+                            <a class="btn btn-sm <?= isset($reviewedProducts[(int) $item['ProductID']]) ? 'btn-outline-secondary' : 'btn-primary' ?>"
+                               href="/product-detail.php?id=<?= (int) $item['ProductID'] ?>#reviews">
+                                <i class="bi bi-star"></i>
+                                <?= isset($reviewedProducts[(int) $item['ProductID']]) ? 'Sửa đánh giá' : 'Đánh giá' ?>
+                            </a>
+                        <?php else: ?>
+                            <span class="text-muted small">—</span>
+                        <?php endif; ?>
                     </td>
                 </tr>
             <?php endwhile; ?>

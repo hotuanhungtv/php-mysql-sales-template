@@ -30,56 +30,41 @@ $sql = "
       AND p.IsActive = 1
 ";
 
+$types = '';
+$params = [];
+
 if ($keyword !== '') {
-    $sql .= "
-        AND (
-            p.ProductName LIKE ?
-            OR p.ProductCode LIKE ?
-        )
-    ";
+    $sql .= " AND (p.ProductName LIKE ? OR p.ProductCode LIKE ?) ";
+    $types .= 'ss';
+    $params[] = '%' . $keyword . '%';
+    $params[] = '%' . $keyword . '%';
 }
 
 if ($categoryID > 0) {
-    $sql .= "
-        AND p.CategoryID = ?
-    ";
+    $sql .= " AND p.CategoryID = ? ";
+    $types .= 'i';
+    $params[] = $categoryID;
 }
 
-$sql .= "
-    ORDER BY p.ProductID DESC
-";
+/* Lọc theo khoảng giá: ?min_price=1000000&max_price=20000000 */
+if (isset($_GET['min_price']) && (int) $_GET['min_price'] > 0) {
+    $sql .= " AND p.Price >= ? ";
+    $types .= 'i';
+    $params[] = (int) $_GET['min_price'];
+}
+
+if (isset($_GET['max_price']) && (int) $_GET['max_price'] > 0) {
+    $sql .= " AND p.Price <= ? ";
+    $types .= 'i';
+    $params[] = (int) $_GET['max_price'];
+}
+
+$sql .= " ORDER BY p.ProductID DESC ";
 
 $stmt = $conn->prepare($sql);
 
-if ($keyword !== '' && $categoryID > 0) {
-
-    $searchKeyword =
-        '%' . $keyword . '%';
-
-    $stmt->bind_param(
-        'ssi',
-        $searchKeyword,
-        $searchKeyword,
-        $categoryID
-    );
-
-} elseif ($keyword !== '') {
-
-    $searchKeyword =
-        '%' . $keyword . '%';
-
-    $stmt->bind_param(
-        'ss',
-        $searchKeyword,
-        $searchKeyword
-    );
-
-} elseif ($categoryID > 0) {
-
-    $stmt->bind_param(
-        'i',
-        $categoryID
-    );
+if ($params) {
+    $stmt->bind_param($types, ...$params);
 }
 
 $stmt->execute();

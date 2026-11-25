@@ -3,12 +3,20 @@ $staffName   = $_SESSION['staff_name'] ?? '';
 $staffRole   = $_SESSION['staff_role'] ?? '';
 $isAdminUser = $staffRole === 'admin';
 
+/* Số đánh giá mới chưa xem (hiện chấm vàng trên menu "Đánh giá") */
+$unreviewedCount = 0;
+if (isset($conn) && $conn instanceof mysqli) {
+    require_once '/var/www/src/config/reviews.php';
+    $unreviewedCount = reviews_unread_count($conn);
+}
+
 $currentPath = parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '';
 
 /* [đường dẫn, nhãn, icon, chỉ admin?, khớp chính xác?] */
 $adminMenu = [
     ['/admin/',            'Tổng quan', 'bi-speedometer2', false, true],
     ['/admin/orders/',     'Đơn hàng',  'bi-receipt',      false, false],
+    ['/admin/reviews/',    'Đánh giá',  'bi-star',         false, false],
     ['/admin/products/',   'Sản phẩm',  'bi-box-seam',     true,  false],
     ['/admin/categories/', 'Danh mục',  'bi-tags',         true,  false],
     ['/admin/customers/',  'Khách hàng', 'bi-people',      true,  false],
@@ -45,6 +53,9 @@ function adminIsActive(string $href, bool $exact, string $path): bool
                         <a class="nav-link <?= adminIsActive($href, $exact, $currentPath) ? 'active' : '' ?>"
                            href="<?= $href ?>">
                             <i class="bi <?= $icon ?>"></i> <?= $label ?>
+                            <?php if ($href === '/admin/reviews/' && $unreviewedCount > 0): ?>
+                                <span class="nav-count"><?= $unreviewedCount ?></span>
+                            <?php endif; ?>
                         </a>
                     </li>
                 <?php endforeach; ?>

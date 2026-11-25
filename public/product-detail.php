@@ -1,6 +1,8 @@
 <?php
 require_once '/var/www/src/config/session.php';
 require_once '/var/www/src/config/database.php';
+require_once '/var/www/src/config/reviews.php';
+reviews_ensure_table($conn);
 //kiểm tra sản phẩm tồn tại
 $productID = isset($_GET['id'])
     ? (int) $_GET['id']
@@ -94,6 +96,125 @@ if (!$product) {
     header('Location: /products.php');
     exit;
 }
+
+/* ===== MUA NGAY: bỏ qua giỏ hàng, chuyển thẳng tới trang thanh toán ===== */
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['buy_now'])) {
+
+    $buyQuantity = max(1, (int) ($_POST['quantity'] ?? 1));
+    $buyStock = (int) $product['StockQuantity'];
+
+    if ($buyStock <= 0) {
+        $cartMessage = 'Sản phẩm hiện đã hết hàng.';
+    } else {
+        /* Đơn "mua ngay" tách riêng, không đụng tới giỏ hàng hiện có */
+        $_SESSION['buy_now'] = [$productID => min($buyQuantity, $buyStock)];
+
+        header('Location: /checkout.php?mode=buy_now');
+        exit;
+    }
+}
+
+/* ===== ĐÁNH GIÁ & NHẬN XÉT ===== */
+$customerLoggedIn = isset($_SESSION['customer_id']);
+$reviewCustomerID = $customerLoggedIn ? (int) $_SESSION['customer_id'] : 0;
+$reviewOrderID = $customerLoggedIn
+    ? review_eligible_order($conn, $reviewCustomerID, $productID)
+    : 0;
+$reviewError = '';
+$reviewForm = ['rating' => 0, 'comment' => ''];
+
+/* Đánh giá cũ của chính khách (nếu có) để sửa lại */
+if ($customerLoggedIn) {
+    $stmtMine = $conn->prepare(
+        'SELECT Rating, Comment FROM reviews WHERE ProductID = ? AND CustomerID = ?'
+    );
+    $stmtMine->bind_param('ii', $productID, $reviewCustomerID);
+    $stmtMine->execute();
+    $mine = $stmtMine->get_result()->fetch_assoc();
+    $stmtMine->close();
+
+    if ($mine) {
+        $reviewForm = ['rating' => (int) $mine['Rating'], 'comment' => $mine['Comment']];
+    }
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
+
+    $reviewForm = [
+        'rating'  => (int) ($_POST['rating'] ?? 0),
+        'comment' => trim((string) ($_POST['comment'] ?? '')),
+    ];
+
+    if (!$customerLoggedIn) {
+        flash_set('info', 'Vui lòng đăng nhập để đánh giá sản phẩm.');
+        header('Location: /login.php');
+        exit;
+    }
+
+    $commentLength = mb_strlen($reviewForm['comment'], 'UTF-8');
+
+    if ($reviewOrderID <= 0) {
+        $reviewError = 'Chỉ khách hàng đã mua sản phẩm này mới có thể đánh giá.';
+    } elseif ($reviewForm['rating'] < 1 || $reviewForm['rating'] > 5) {
+        $reviewError = 'Vui lòng chọn số sao từ 1 đến 5.';
+    } elseif ($commentLength < 5) {
+        $reviewError = 'Nhận xét cần có ít nhất 5 ký tự.';
+    } elseif ($commentLength > 1000) {
+        $reviewError = 'Nhận xét tối đa 1000 ký tự.';
+    } else {
+        $stmtSave = $conn->prepare("
+            INSERT INTO reviews (ProductID, CustomerID, OrderID, Rating, Comment, IsRead)
+            VALUES (?, ?, ?, ?, ?, 0) AS new_review
+            ON DUPLICATE KEY UPDATE
+                OrderID = new_review.OrderID,
+                Rating = new_review.Rating,
+                Comment = new_review.Comment,
+                IsVisible = 1,
+                IsRead = 0
+        ");
+        $stmtSave->bind_param(
+            'iiiis',
+            $productID,
+            $reviewCustomerID,
+            $reviewOrderID,
+            $reviewForm['rating'],
+            $reviewForm['comment']
+        );
+        $stmtSave->execute();
+        $stmtSave->close();
+
+        flash_set('success', 'Cảm ơn bạn! Đánh giá đã được gửi và hiển thị trên sản phẩm.');
+        header('Location: /product-detail.php?id=' . $productID . '#reviews');
+        exit;
+    }
+}
+
+/* Tổng hợp số sao */
+$stmtSummary = $conn->prepare("
+    SELECT COUNT(*) AS total, COALESCE(AVG(Rating), 0) AS average,
+           COALESCE(SUM(Rating = 5), 0) AS s5, COALESCE(SUM(Rating = 4), 0) AS s4,
+           COALESCE(SUM(Rating = 3), 0) AS s3, COALESCE(SUM(Rating = 2), 0) AS s2,
+           COALESCE(SUM(Rating = 1), 0) AS s1
+    FROM reviews
+    WHERE ProductID = ? AND IsVisible = 1
+");
+$stmtSummary->bind_param('i', $productID);
+$stmtSummary->execute();
+$reviewSummary = $stmtSummary->get_result()->fetch_assoc();
+$stmtSummary->close();
+
+$stmtReviews = $conn->prepare("
+    SELECT r.Rating, r.Comment, r.CreatedAt, r.AdminReply, r.RepliedAt, c.CustomerName
+    FROM reviews r
+    JOIN customers c ON c.CustomerID = r.CustomerID
+    WHERE r.ProductID = ? AND r.IsVisible = 1
+    ORDER BY r.CreatedAt DESC
+    LIMIT 50
+");
+$stmtReviews->bind_param('i', $productID);
+$stmtReviews->execute();
+$reviewList = $stmtReviews->get_result()->fetch_all(MYSQLI_ASSOC);
+$stmtReviews->close();
 
 $sqlImages = "
     SELECT ImageFile, IsPrimary
@@ -465,6 +586,18 @@ require_once '/var/www/src/includes/frontend/navbar.php';
 
                         </div>
 
+                        <div class="col-auto">
+
+                            <button
+                                type="submit"
+                                name="buy_now"
+                                class="btn btn-buy btn-lg"
+                            >
+                                <i class="bi bi-lightning-charge-fill"></i> Mua ngay
+                            </button>
+
+                        </div>
+
                     </div>
 
                 </form>
@@ -499,6 +632,143 @@ require_once '/var/www/src/includes/frontend/navbar.php';
         </div>
 
     </div>
+
+    <!-- ===== Đánh giá & nhận xét ===== -->
+    <section class="review-section" id="reviews">
+
+        <div class="section-title">
+            <h2>Đánh giá &amp; nhận xét</h2>
+        </div>
+
+        <div class="row g-4">
+
+            <div class="col-lg-4">
+                <div class="panel review-summary">
+                    <div class="review-avg"><?= number_format((float) $reviewSummary['average'], 1) ?></div>
+                    <?= review_stars((float) $reviewSummary['average'], 'stars-lg') ?>
+                    <div class="text-muted mt-1 mb-3">
+                        <?= (int) $reviewSummary['total'] ?> đánh giá
+                    </div>
+
+                    <?php for ($star = 5; $star >= 1; $star--): ?>
+                        <?php
+                        $starCount = (int) $reviewSummary['s' . $star];
+                        $starPercent = $reviewSummary['total'] > 0
+                            ? round($starCount * 100 / $reviewSummary['total'])
+                            : 0;
+                        ?>
+                        <div class="review-bar">
+                            <span><?= $star ?> <i class="bi bi-star-fill"></i></span>
+                            <div class="review-bar-track">
+                                <div style="width: <?= (int) $starPercent ?>%"></div>
+                            </div>
+                            <span class="text-end"><?= $starCount ?></span>
+                        </div>
+                    <?php endfor; ?>
+                </div>
+            </div>
+
+            <div class="col-lg-8">
+
+                <div class="panel mb-4">
+                    <h3 class="panel-title">
+                        <i class="bi bi-pencil-square"></i>
+                        <?= $mine ?? null ? 'Chỉnh sửa đánh giá của bạn' : 'Viết đánh giá của bạn' ?>
+                    </h3>
+
+                    <?php if ($reviewError !== ''): ?>
+                        <div class="alert alert-danger">
+                            <i class="bi bi-exclamation-triangle"></i> <?= e($reviewError) ?>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if (!$customerLoggedIn): ?>
+
+                        <p class="mb-3 text-muted">
+                            Đăng nhập để chia sẻ cảm nhận của bạn về sản phẩm này.
+                        </p>
+                        <a href="/login.php" class="btn btn-primary">
+                            <i class="bi bi-box-arrow-in-right"></i> Đăng nhập để đánh giá
+                        </a>
+
+                    <?php elseif ($reviewOrderID <= 0): ?>
+
+                        <p class="mb-0 text-muted">
+                            <i class="bi bi-bag-check"></i>
+                            Chỉ khách hàng đã mua sản phẩm này mới có thể viết đánh giá.
+                        </p>
+
+                    <?php else: ?>
+
+                        <form method="post" action="/product-detail.php?id=<?= (int) $productID ?>#reviews">
+                            <?= csrf_field() ?>
+
+                            <label class="form-label">Bạn chấm sản phẩm mấy sao?</label>
+                            <div class="star-input mb-3">
+                                <?php for ($star = 5; $star >= 1; $star--): ?>
+                                    <input type="radio" name="rating" id="star<?= $star ?>"
+                                           value="<?= $star ?>"
+                                           <?= $reviewForm['rating'] === $star ? 'checked' : '' ?>
+                                           required>
+                                    <label for="star<?= $star ?>" title="<?= $star ?> sao">
+                                        <i class="bi bi-star-fill"></i>
+                                    </label>
+                                <?php endfor; ?>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="comment" class="form-label">Nhận xét</label>
+                                <textarea class="form-control" id="comment" name="comment" rows="4"
+                                          minlength="5" maxlength="1000" required
+                                          placeholder="Chia sẻ trải nghiệm của bạn về chất lượng, giao hàng..."><?= e($reviewForm['comment']) ?></textarea>
+                            </div>
+
+                            <button type="submit" name="submit_review" class="btn btn-primary">
+                                <i class="bi bi-send"></i>
+                                <?= $mine ?? null ? 'Cập nhật đánh giá' : 'Gửi đánh giá' ?>
+                            </button>
+                        </form>
+
+                    <?php endif; ?>
+                </div>
+
+                <?php if ($reviewList): ?>
+                    <?php foreach ($reviewList as $review): ?>
+                        <div class="review-item">
+                            <div class="review-avatar">
+                                <?= e(mb_strtoupper(mb_substr($review['CustomerName'], 0, 1, 'UTF-8'), 'UTF-8')) ?>
+                            </div>
+                            <div class="flex-grow-1">
+                                <div class="d-flex flex-wrap justify-content-between gap-2">
+                                    <strong><?= e(review_display_name($review['CustomerName'])) ?></strong>
+                                    <small class="text-muted">
+                                        <?= e(date('d/m/Y H:i', strtotime($review['CreatedAt']))) ?>
+                                    </small>
+                                </div>
+                                <?= review_stars((float) $review['Rating']) ?>
+                                <span class="badge bg-success ms-1">
+                                    <i class="bi bi-patch-check-fill"></i> Đã mua hàng
+                                </span>
+                                <p class="mt-2 mb-0"><?= nl2br(e($review['Comment'])) ?></p>
+
+                                <?php if (!empty($review['AdminReply'])): ?>
+                                    <div class="review-reply">
+                                        <strong><i class="bi bi-shop"></i> Phản hồi từ cửa hàng</strong>
+                                        <p class="mb-0"><?= nl2br(e($review['AdminReply'])) ?></p>
+                                    </div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                    <?php endforeach; ?>
+                <?php else: ?>
+                    <div class="alert alert-info mb-0">
+                        Chưa có đánh giá nào. Hãy là người đầu tiên đánh giá sản phẩm này!
+                    </div>
+                <?php endif; ?>
+
+            </div>
+        </div>
+    </section>
 
 </main>
 
